@@ -2,6 +2,13 @@
 
 Remotion과 TypeScript로 제작한 180초 시상식 마스터입니다. 구성은 오프닝, 일정, 시상 분야, CW 시상, 미사일시스템 시상, 퀴즈, 엔딩입니다. Studio의 `FestivalMaster`는 **3960×1080, 11:3, 30 fps** 작업 해상도로 설정되어 있습니다.
 
+## 제작 산출물
+
+- [180초 마스터 MP4](deliverables/festival-master.mp4) · 1980×540, 11:3, 30 fps, H.264/AAC
+- [36구간 디자인 시안 ZIP](deliverables/festival-design-review.zip) · 원안 108장, 종합안 36장 및 콘택트 시트
+- [완성 영상 검수 프레임](deliverables/master-contact.jpg)
+- [독립 검수 결과](docs/reviews/production-qa.md)
+
 ## 실행과 검수
 
 Node.js 24.22.3, npm 11.19.1, FFmpeg/ffprobe, 한글 글꼴 Noto Sans CJK KR을 사용합니다.
