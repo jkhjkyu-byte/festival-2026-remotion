@@ -1,0 +1,3 @@
+# Preserve the upstream vendored Python source, including string whitespace.
+.agents/skills/ui-ux-pro-max/scripts/design_system.py whitespace=-blank-at-eol
+.agents/skills/bmad-cis-storytelling/LICENSE whitespace=-blank-at-eol
