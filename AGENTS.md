@@ -27,3 +27,8 @@ Remotion을 사용해 기업 시상식의 오프닝, 부문 소개, 수상자 �
 - `npm run lint`로 ESLint와 TypeScript, `npm run build`로 번들링, `npm run render:smoke`로 저해상도 MP4와 전체 디코딩을 확인한다.
 - 시상식 마스터는 3960×1080, 30fps, 11:3으로 작업한다. 180초 타임라인의 장면 경계를 유지하고 검토용 MP4는 기본 1980×540으로 렌더한다. `src/data/production.ts`에서 두 연구소의 분야·수상자·대상을 독립 관리한다. Smoke 검증은 640×360, 30fps, 90프레임, 무음, H.264 MP4, yuv420p, BT.709다. 기본 브라우저를 사용할 수 없는 클라우드에서는 `REMOTION_BROWSER_EXECUTABLE=/usr/bin/chromium`으로 기존 시스템 브라우저를 지정한다.
 - 최종 해상도, 프레임률, 영상 길이, 코덱, 오디오 레벨, LED 패널 영역, 색·레벨 및 안전 영역은 스크린 운영자와 확정한다. 실제 상영 장비에서 처음·마지막 큐, 음향, 객석 가독성을 확인한다. 마스터는 `npm run render:festival`로 생성하고 `node scripts/verify-festival.mjs`로 검증한다. 생성물은 `out/`에 두고 Git에는 소스, 승인된 제작 자산과 검토 기록을 남긴다.
+
+## 시네마틱 재제작 브랜치
+
+- `FestivalCinematic`의 명단은 `src/data/award-roster.ts`에서 연구소별로 관리한다. 공동 수상자, 팀 단독 수상, 빈 등급을 실제 입력과 동일하게 전달한다.
+- 180초 본편은 `npm run render:cinematic -- master`, 라이브 3D 프루프는 `npm run render:cinematic -- proofs`, 무대 원본은 `npm run render:cinematic -- plates`로 제작한다. 기존 마스터 자료와 재제작 배포본은 각각 유지한다.

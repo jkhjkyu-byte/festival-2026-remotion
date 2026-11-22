@@ -2,7 +2,22 @@
 
 Remotion과 TypeScript로 제작한 180초 시상식 마스터입니다. 구성은 오프닝, 일정, 시상 분야, CW 시상, 미사일시스템 시상, 퀴즈, 엔딩입니다. Studio의 `FestivalMaster`는 **3960×1080, 11:3, 30 fps** 작업 해상도로 설정되어 있습니다.
 
-## 제작 산출물
+## 시네마틱 재제작
+
+Studio의 `FestivalCinematic`이 재제작한 180초 본편입니다. [장면 구성과 엑셀 반영 기준](docs/storyboard/cinematic-master.md), [세 가지 디자인 시안](docs/design/cinematic-redesign.md), [독립 검수](docs/reviews/cinematic-redesign-qa.md)를 참조하세요. 수상자 편집은 `src/data/award-roster.ts`에서 합니다.
+
+- [오프닝 5초 프루프](deliverables/cinematic/proof-opening.mp4)
+- [대상 발표 5초 프루프](deliverables/cinematic/proof-award.mp4)
+- [3개 디자인 방향 비교](deliverables/cinematic/design/concept-contact.jpg)
+
+```bash
+REMOTION_BROWSER_EXECUTABLE=/usr/bin/chromium npm run render:cinematic -- proofs
+REMOTION_BROWSER_EXECUTABLE=/usr/bin/chromium npm run render:cinematic -- plates  # 3D 무대 소스를 바꾼 경우
+REMOTION_BROWSER_EXECUTABLE=/usr/bin/chromium npm run render:cinematic -- master
+node --disable-warning=ExperimentalWarning scripts/verify-cinematic.mjs out/redesign/festival-cinematic.mp4
+```
+
+## 기존 제작 산출물
 
 - [180초 마스터 MP4](deliverables/festival-master.mp4) · 1980×540, 11:3, 30 fps, H.264/AAC
 - [36구간 디자인 시안 ZIP](deliverables/festival-design-review.zip) · 원안 108장, 종합안 36장 및 콘택트 시트

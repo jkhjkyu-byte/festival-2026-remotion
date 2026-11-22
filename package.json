@@ -31,7 +31,8 @@
     "build": "remotion bundle",
     "lint": "eslint src && tsc --noEmit",
     "render:smoke": "bash scripts/render-smoke.sh",
-    "render:festival": "bash scripts/render-festival.sh"
+    "render:festival": "bash scripts/render-festival.sh",
+    "render:cinematic": "bash scripts/render-cinematic.sh"
   },
   "allowScripts": {
     "esbuild": false

@@ -72,7 +72,7 @@ export const festivalCopy = {
   } satisfies Record<"poster" | InstituteCode, ScheduleItem>,
   quiz: {
     title: "SPECIAL QUIZ EVENT",
-    invitation: "퀴즈를 맞히고 선물도 받아가세요!",
+    invitation: "시상식에 참석해 퀴즈를 맞히면 상품을 드립니다.",
     notice: "잠시 후, 특별 퀴즈가 시작됩니다!",
     challenge: "여러분의 도전을 기다립니다.",
   },
