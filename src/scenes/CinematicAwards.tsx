@@ -272,7 +272,7 @@ const GrandHonors = ({ cue }: { cue: AwardCue }) => {
   const { name, categories } = festivalAwards[cue.code];
   const { name: category } = categories[cue.categoryIndex];
   const titleAt = Math.min(fps * 0.22, cue.frames * 0.09);
-  const namesAt = Math.min(fps * 0.77, cue.frames * 0.24);
+  const namesAt = Math.min(fps * 0.53, cue.frames * 0.17);
   const multiple = cue.recipients.length > 1;
 
   return (
@@ -347,7 +347,7 @@ const GrandHonors = ({ cue }: { cue: AwardCue }) => {
           display: "grid",
           gridTemplateColumns: multiple ? "repeat(2, minmax(0, 1fr))" : "1fr",
           gap: "3.1cqw",
-          opacity: settle(frame, namesAt, fps * 0.44),
+          opacity: settle(frame, namesAt, fps * 0.31),
           width: "100%",
         }}
       >

@@ -11,13 +11,9 @@ export type AwardCue = {
 };
 
 export const fps = 30;
-export const masterSeconds = [10, 12, 18, 56, 18, 52, 10, 4] as const;
-export const masterCues = masterSeconds.map((seconds, index) => ({
-  from:
-    masterSeconds.slice(0, index).reduce((sum, value) => sum + value, 0) * fps,
-  durationInFrames: seconds * fps,
-}));
-export const durationInFrames = 180 * fps;
+export const cardSeconds = 4;
+export const instituteIntroSeconds = 4;
+export const cardFrames = fps * cardSeconds;
 
 export const getInstituteAwardCues = (code: InstituteCode): AwardCue[] => {
   const categories = festivalAwards[code].categories;
@@ -52,36 +48,30 @@ export const getInstituteAwardCues = (code: InstituteCode): AwardCue[] => {
     },
   );
 
-  const allotted = (code === "CW" ? masterSeconds[3] : masterSeconds[5]) * fps;
-  const creditFrames = (code === "CW" ? 11 : 9) * fps;
-  const grandFrames = 108;
-  const fixedFrames = items.reduce(
-    (sum, { kind }) =>
-      sum +
-      (kind === "grand" ? grandFrames : kind === "credits" ? creditFrames : 0),
-    0,
-  );
-  const readingWeight = (item: (typeof items)[number]) =>
-    item.kind === "regular" ? 4 + item.recipients.length : 0;
-  const totalWeight = items.reduce((sum, item) => sum + readingWeight(item), 0);
-  let consumedWeight = 0;
-  let start = 0;
-
-  return items.map((item) => {
-    let frames: number;
-    if (item.kind === "grand") {
-      frames = grandFrames;
-    } else if (item.kind === "credits") {
-      frames = creditFrames;
-    } else {
-      const before = consumedWeight;
-      consumedWeight += readingWeight(item);
-      frames =
-        Math.round(((allotted - fixedFrames) * consumedWeight) / totalWeight) -
-        Math.round(((allotted - fixedFrames) * before) / totalWeight);
-    }
-    const cue = { ...item, frames, start };
-    start += frames;
-    return cue;
-  });
+  return items.map((item, index) => ({
+    ...item,
+    frames: cardFrames,
+    start: index * cardFrames,
+  }));
 };
+
+export const masterSeconds = [
+  10,
+  12,
+  instituteIntroSeconds + festivalAwards.CW.categories.length * cardSeconds,
+  getInstituteAwardCues("CW").length * cardSeconds,
+  instituteIntroSeconds + festivalAwards.MS.categories.length * cardSeconds,
+  getInstituteAwardCues("MS").length * cardSeconds,
+  8,
+  10,
+  4,
+];
+
+let cutFrame = 0;
+export const masterCues = masterSeconds.map((seconds) => {
+  const durationInFrames = seconds * fps;
+  const from = cutFrame;
+  cutFrame += durationInFrames;
+  return { from, durationInFrames };
+});
+export const durationInFrames = cutFrame;

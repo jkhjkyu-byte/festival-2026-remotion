@@ -2,7 +2,18 @@
 
 Remotion과 TypeScript로 제작한 180초 시상식 마스터입니다. 구성은 오프닝, 일정, 시상 분야, CW 시상, 미사일시스템 시상, 퀴즈, 엔딩입니다. Studio의 `FestivalMaster`는 **3960×1080, 11:3, 30 fps** 작업 해상도로 설정되어 있습니다.
 
-## 최신 참고 영상 반영판
+## 최신 시상식 연출·균등 노출 수정판
+
+- [3분 44초 수정본 MP4](deliverables/ceremony-cut/festival-ceremony-cut.mp4) · 1980×540, 11:3, 30 fps
+- [주요 장면 모음](deliverables/ceremony-cut/scene-review.jpg)
+- [편집·시간표](docs/design/ceremony-cut.md) · [검수 결과](docs/reviews/ceremony-cut-qa.md)
+
+```bash
+REMOTION_BROWSER_EXECUTABLE=/usr/bin/chromium npm run render:cinematic -- ceremony
+node --disable-warning=ExperimentalWarning scripts/verify-cinematic.mjs out/ceremony-cut/festival-ceremony-cut.mp4
+```
+
+## 이전 참고 영상 반영판
 
 - [180초 참고 영상 반영판 MP4](deliverables/reference-cut/festival-reference-cut.mp4) · 1980×540, 11:3, 30 fps
 - [주요 장면 모음](deliverables/reference-cut/scene-review.jpg)

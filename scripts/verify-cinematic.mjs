@@ -44,15 +44,21 @@ const timing = stripTypeScriptTypes(
     "utf8",
   ),
 ).replace('"./award-roster"', JSON.stringify(roster));
-const { masterCues, getInstituteAwardCues, durationInFrames } = await import(
-  asModule(timing)
-);
+const { masterCues, getInstituteAwardCues, durationInFrames, cardFrames } =
+  await import(asModule(timing));
 
 assert.deepEqual(
   masterCues.map(({ from }) => from),
-  [0, 300, 660, 1200, 2880, 3420, 4980, 5280],
+  [0, 300, 660, 1740, 3420, 4500, 6060, 6300, 6600],
 );
-assert.equal(durationInFrames, 5400);
+assert.equal(durationInFrames, 6720);
+assert.equal(cardFrames, 120);
+assert.equal(festivalAwards.CW.name, "CW생산본부");
+assert.equal(festivalAwards.MS.name, "미사일시스템생산본부");
+for (const index of [2, 4]) {
+  assert.equal(masterCues[index].durationInFrames, 120 + 8 * cardFrames);
+}
+assert.equal(masterCues[6].durationInFrames, 240);
 for (const [code, frames, count] of [
   ["CW", 1680, 49],
   ["MS", 1560, 37],
@@ -62,7 +68,7 @@ for (const [code, frames, count] of [
   let cursor = 0;
   for (const cue of cues) {
     assert.equal(cue.start, cursor);
-    assert.ok(cue.frames > 0);
+    assert.equal(cue.frames, cardFrames);
     assert.ok(
       cue.recipients.every((entry) =>
         festivalAwards[code].categories[cue.categoryIndex].recipients.includes(
@@ -91,7 +97,7 @@ for (const [code, frames, count] of [
   assert.equal(cursor, frames);
 }
 console.log(
-  "CW/MS category, 86 award rows, 10 grand-prize cues, fixed-roster timing and mentor/mentee labels passed.",
+  "CW/MS category, 86 award rows, 10 grand-prize cues, uniform four-second pages, production division labels and mentor/mentee labels passed.",
 );
 
 function run(cmd, args) {
@@ -103,7 +109,7 @@ function run(cmd, args) {
 
 const video = process.argv[2];
 if (video) {
-  const length = Number(process.argv[3] || 180);
+  const length = Number(process.argv[3] || durationInFrames / 30);
   const { streams } = JSON.parse(
     run("ffprobe", ["-v", "error", "-show_streams", "-of", "json", video]),
   );

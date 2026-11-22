@@ -94,9 +94,11 @@ const Horizon = ({
 const FilmTitle = ({
   start,
   ending,
+  light = false,
 }: {
   readonly start: number;
   readonly ending?: boolean;
+  readonly light?: boolean;
 }) => (
   <div
     style={{
@@ -118,8 +120,8 @@ const FilmTitle = ({
           letterSpacing: "-0.057em",
           lineHeight: 1.13,
           whiteSpace: "nowrap",
-          color: porcelain,
-          textShadow,
+          color: light ? "#111a2b" : porcelain,
+          textShadow: light ? "none" : textShadow,
         }}
       >
         {festivalCopy.title}
@@ -131,12 +133,12 @@ const FilmTitle = ({
         lang="ko"
         style={{
           margin: 0,
-          color: ice,
+          color: light ? "#37465a" : ice,
           fontSize: "5.15cqh",
           fontWeight: 610,
           letterSpacing: "0.01em",
           lineHeight: 1.3,
-          textShadow,
+          textShadow: light ? "none" : textShadow,
         }}
       >
         {festivalCopy.slogan}
@@ -145,7 +147,7 @@ const FilmTitle = ({
   </div>
 );
 
-export const OpeningTitle = () => (
+export const OpeningTitle = ({ from = 1.24 }: { from?: number }) => (
   <AbsoluteFill
     style={{
       background:
@@ -153,7 +155,7 @@ export const OpeningTitle = () => (
     }}
   >
     <div style={{ ...textArea, display: "grid", alignItems: "center" }}>
-      <FilmTitle start={1.24} />
+      <FilmTitle start={from} />
     </div>
   </AbsoluteFill>
 );
@@ -697,7 +699,7 @@ export const QuizTitle = () => (
   </AbsoluteFill>
 );
 
-export const EndingTitle = () => {
+export const EndingTitle = ({ light = false }: { light?: boolean }) => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
 
@@ -717,7 +719,7 @@ export const EndingTitle = () => {
           ),
         }}
       >
-        <FilmTitle start={0.05} ending />
+        <FilmTitle start={0.05} ending light={light} />
       </div>
     </AbsoluteFill>
   );

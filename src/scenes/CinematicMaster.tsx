@@ -12,12 +12,16 @@ import {
 } from "remotion";
 import {
   getInstituteAwardCues,
+  instituteIntroSeconds,
   masterCues,
   type AwardCue,
 } from "../data/cinematic-timeline";
 import { CeremonySpace, type CeremonySpaceProps } from "../three/CeremonySpace";
 import { CategoryHonors, CategoryIntroductions } from "./CinematicAwards";
 import { InstituteBroll } from "./InstituteBroll";
+import { CeremonyPhotography } from "./CeremonyPhotography";
+import { HonorProcession } from "./HonorProcession";
+import { Appreciation } from "./Appreciation";
 import {
   EndingTitle,
   OpeningTitle,
@@ -109,50 +113,36 @@ const Bed = ({ cue, gain = 0.76 }: { cue: string; gain?: number }) => {
   );
 };
 
-const GoldLayer = ({ code, frames }: Pick<AwardCue, "code" | "frames">) => {
-  const frame = useCurrentFrame();
-  const opacity = interpolate(
-    frame,
-    [0, 15, frames - 9, frames - 1],
-    [0, 1, 1, 0],
-    rounded,
-  );
-  return (
-    <AbsoluteFill style={{ opacity }}>
-      <StagePlate mode={code === "CW" ? "cw" : "ms"} gold zoom={1.15} />
-    </AbsoluteFill>
-  );
-};
+const PrizeReveal = () => (
+  <>
+    <CeremonyPhotography shot="trophy" warm />
+    <HonorProcession image="assets/ceremony-cut/trophy.jpg" />
+    <Audio
+      src={staticFile("assets/ceremony-cut/prize-hit.wav")}
+      volume={0.66}
+    />
+  </>
+);
 
-const OpeningStage = () => {
-  const frame = useCurrentFrame();
-  // Opening moves from a metallic detail to a wide stage, followed by a settled title.
-  const close = frame < 84;
-  const zoom = close
-    ? interpolate(frame, [0, 83], [1.58, 1.25], rounded)
-    : 1.04;
-  return (
-    <AbsoluteFill style={{ backgroundColor: "#060a16" }}>
-      <StagePlate
-        mode="opening"
-        zoom={zoom}
-        x={close ? 12 : 0}
-        y={close ? -2 : 0}
-      />
-      {close && (
-        <AbsoluteFill
-          style={{
-            background: "linear-gradient(110deg,#050917b0,transparent 64%)",
-          }}
-        />
-      )}
-    </AbsoluteFill>
-  );
-};
+const OpeningStage = () => (
+  <>
+    <Sequence durationInFrames={46} premountFor={0} name="금속 디테일">
+      <CeremonyPhotography shot="macro" holdAt={45} />
+    </Sequence>
+    <Sequence from={46} durationInFrames={88} premountFor={0} name="무대 전경">
+      <CeremonyPhotography shot="hall" holdAt={43} />
+    </Sequence>
+    <Sequence from={134} premountFor={0} name="축제 타이틀 홀드">
+      <Freeze frame={54}>
+        <StagePlate mode="opening" zoom={1.05} />
+      </Freeze>
+    </Sequence>
+  </>
+);
 
 const InstituteCategories = ({ code }: Pick<AwardCue, "code">) => {
   const { durationInFrames, fps } = useVideoConfig();
-  const intro = Math.round(3.8 * fps);
+  const intro = instituteIntroSeconds * fps;
   return (
     <>
       <Sequence
@@ -168,11 +158,7 @@ const InstituteCategories = ({ code }: Pick<AwardCue, "code">) => {
         durationInFrames={durationInFrames - intro}
         premountFor={0}
       >
-        <StagePlate
-          mode={code === "CW" ? "cw" : "ms"}
-          zoom={1.27}
-          x={code === "CW" ? 7 : -7}
-        />
+        <CeremonyPhotography shot="hall" mirror={code === "MS"} holdAt={40} />
         <CategoryIntroductions code={code} />
       </Sequence>
       <Bed cue="technology" />
@@ -180,39 +166,45 @@ const InstituteCategories = ({ code }: Pick<AwardCue, "code">) => {
   );
 };
 
-const Awards = ({ code }: Pick<AwardCue, "code">) => {
+const RegularStage = ({ cue }: { cue: AwardCue }) => {
   const frame = useCurrentFrame();
-  const cues = getInstituteAwardCues(code);
-  const mileage = cues.find(({ kind }) => kind === "credits");
+  if (cue.kind === "credits")
+    return <CeremonyPhotography shot="hall" holdAt={1} />;
+  const profile = cue.code === "CW" ? "cw" : "ms";
+  const detail = (cue.categoryIndex + (cue.code === "MS" ? 1 : 0)) % 3;
+  if (detail !== 1)
+    return <CeremonyPhotography shot="hall" mirror={detail === 2} />;
   return (
-    <>
-      <Freeze
-        frame={(mileage?.start ?? 0) + 30}
-        active={!!mileage && frame >= mileage.start}
-      >
-        <StagePlate mode={code === "CW" ? "cw" : "ms"} />
-      </Freeze>
-      <Bed cue="honors" gain={0.53} />
-      {cues.map((cue) => (
-        <Sequence
-          key={cue.start}
-          from={cue.start}
-          durationInFrames={cue.frames}
-          premountFor={0}
-          name={`${cue.kind} · ${cue.categoryIndex + 1}`}
-        >
-          {cue.kind === "grand" && (
-            <>
-              <GoldLayer code={code} frames={cue.frames} />
-              <Bed cue="gold" gain={0.67} />
-            </>
-          )}
-          <CategoryHonors cue={cue} />
-        </Sequence>
-      ))}
-    </>
+    <Freeze frame={29} active={frame >= 29}>
+      <StagePlate mode={profile} zoom={1.23} x={cue.code === "CW" ? 6 : -6} />
+    </Freeze>
   );
 };
+
+const Awards = ({ code }: Pick<AwardCue, "code">) => (
+  <>
+    <Bed cue="honors" gain={0.53} />
+    {getInstituteAwardCues(code).map((cue) => (
+      <Sequence
+        key={cue.start}
+        from={cue.start}
+        durationInFrames={cue.frames}
+        premountFor={0}
+        name={`${cue.kind === "credits" ? "마일리지 명단" : cue.kind} · ${cue.categoryIndex + 1}`}
+      >
+        {cue.kind === "grand" ? (
+          <>
+            <PrizeReveal />
+            <Bed cue="gold" gain={0.7} />
+          </>
+        ) : (
+          <RegularStage cue={cue} />
+        )}
+        <CategoryHonors cue={cue} />
+      </Sequence>
+    ))}
+  </>
+);
 
 const scenes = [
   {
@@ -220,7 +212,7 @@ const scenes = [
     Scene: () => (
       <>
         <OpeningStage />
-        <OpeningTitle />
+        <OpeningTitle from={1.85} />
         <Bed cue="opening" />
       </>
     ),
@@ -246,6 +238,15 @@ const scenes = [
   },
   { name: "MS 수상자", Scene: () => <Awards code="MS" /> },
   {
+    name: "한 해의 성과와 감사",
+    Scene: () => (
+      <>
+        <Appreciation />
+        <Bed cue="ending" gain={0.47} />
+      </>
+    ),
+  },
+  {
     name: "참석자 퀴즈 안내",
     Scene: () => (
       <>
@@ -269,8 +270,8 @@ const scenes = [
     name: "엔딩",
     Scene: () => (
       <>
-        <StagePlate mode="ending" />
-        <EndingTitle />
+        <CeremonyPhotography shot="finale" holdAt={55} />
+        <EndingTitle light />
         <Bed cue="ending" />
       </>
     ),
@@ -331,8 +332,8 @@ export const CinematicMaster = () => (
 
 export const OpeningProof = () => (
   <AbsoluteFill lang="ko" style={surface}>
-    <CeremonySpace mode="opening" />
-    <OpeningTitle />
+    <OpeningStage />
+    <OpeningTitle from={1.85} />
     <Bed cue="opening" />
     <BlackBookend />
   </AbsoluteFill>

@@ -44,13 +44,13 @@ const scenes = [
   },
   {
     key: "cw",
-    name: "04 · CW기술연구소",
+    name: "04 · CW생산본부",
     Scene: () => <InstituteAwardsScene code="CW" />,
     score: "honors",
   },
   {
     key: "ms",
-    name: "05 · 미사일시스템기술연구소",
+    name: "05 · 미사일시스템생산본부",
     Scene: () => <InstituteAwardsScene code="MS" />,
     score: "honors",
   },

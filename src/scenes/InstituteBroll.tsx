@@ -468,8 +468,8 @@ export const InstituteBroll = ({ code }: { readonly code: Code }) => {
             }}
           >
             {code === "CW"
-              ? "CW TECHNOLOGY LAB"
-              : "MISSILE SYSTEM TECHNOLOGY LAB"}
+              ? "CW PRODUCTION DIVISION"
+              : "MISSILE SYSTEM PRODUCTION DIVISION"}
           </div>
           <div
             style={{

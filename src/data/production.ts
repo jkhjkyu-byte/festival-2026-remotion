@@ -21,7 +21,7 @@ type ScheduleItem = {
 
 export const awardData: Record<InstituteCode, InstituteAwards> = {
   CW: {
-    institute: "CW기술연구소",
+    institute: "CW생산본부",
     categories: [
       "특허",
       "논문",
@@ -35,7 +35,7 @@ export const awardData: Record<InstituteCode, InstituteAwards> = {
     grandPrize: null,
   },
   MS: {
-    institute: "미사일시스템기술연구소",
+    institute: "미사일시스템생산본부",
     categories: [
       "특허",
       "논문",

@@ -19,7 +19,7 @@ export const festivalAwards: Readonly<
   Record<InstituteCode, FestivalInstitute>
 > = {
   CW: {
-    name: "CW기술연구소",
+    name: "CW생산본부",
     categories: [
       {
         name: "특허",
@@ -313,7 +313,7 @@ export const festivalAwards: Readonly<
     ],
   },
   MS: {
-    name: "미사일시스템기술연구소",
+    name: "미사일시스템생산본부",
     categories: [
       {
         name: "특허",
