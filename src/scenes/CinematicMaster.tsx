@@ -118,8 +118,8 @@ const PrizeReveal = () => (
     <CeremonyPhotography shot="trophy" warm />
     <HonorProcession image="assets/ceremony-cut/trophy.jpg" />
     <Audio
-      src={staticFile("assets/ceremony-cut/prize-hit.wav")}
-      volume={0.66}
+      src={staticFile("assets/awards-order/prize-chime.wav")}
+      volume={0.57}
     />
   </>
 );
@@ -192,14 +192,7 @@ const Awards = ({ code }: Pick<AwardCue, "code">) => (
         premountFor={0}
         name={`${cue.kind === "credits" ? "마일리지 명단" : cue.kind} · ${cue.categoryIndex + 1}`}
       >
-        {cue.kind === "grand" ? (
-          <>
-            <PrizeReveal />
-            <Bed cue="gold" gain={0.7} />
-          </>
-        ) : (
-          <RegularStage cue={cue} />
-        )}
+        {cue.kind === "grand" ? <PrizeReveal /> : <RegularStage cue={cue} />}
         <CategoryHonors cue={cue} />
       </Sequence>
     ))}
@@ -346,9 +339,8 @@ export const AwardProof = () => {
   if (!grand) throw new Error("Opening proof needs a workbook grand prize.");
   return (
     <AbsoluteFill lang="ko" style={surface}>
-      <CeremonySpace mode="cw" gold />
+      <PrizeReveal />
       <CategoryHonors cue={{ ...grand, frames: 150 }} />
-      <Bed cue="gold" />
     </AbsoluteFill>
   );
 };

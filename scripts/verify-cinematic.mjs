@@ -59,6 +59,31 @@ for (const index of [2, 4]) {
   assert.equal(masterCues[index].durationInFrames, 120 + 8 * cardFrames);
 }
 assert.equal(masterCues[6].durationInFrames, 240);
+const rankOrder = ["최우수", "우수", "장려"];
+const orderOf = (rank) =>
+  rankOrder.includes(rank) ? rankOrder.indexOf(rank) : rankOrder.length;
+const sevenIndex = festivalAwards.CW.categories.findIndex(
+  ({ name }) => name === "7S 낭비제거활동",
+);
+const seven = getInstituteAwardCues("CW").filter(
+  ({ categoryIndex }) => categoryIndex === sevenIndex,
+);
+assert.deepEqual(
+  seven.map(({ kind, recipients }) => [kind, recipients.length]),
+  [
+    ["regular", 6],
+    ["regular", 3],
+    ["grand", 1],
+  ],
+);
+assert.ok(seven[0].recipients.every(({ names }) => names.length > 0));
+assert.ok(seven[1].recipients.every(({ names }) => names.length === 0));
+assert.deepEqual(
+  seven[1].recipients.map(({ rank }) => rank),
+  ["지속실천 우수팀", "최다 제출팀", "다각화 제안 우수팀"],
+);
+assert.deepEqual(seven[2].recipients[0].names, ["김태호"]);
+
 for (const [code, frames, count] of [
   ["CW", 1680, 49],
   ["MS", 1560, 37],
@@ -78,8 +103,14 @@ for (const [code, frames, count] of [
     );
     if (cue.kind === "grand")
       assert.ok(cue.recipients.every(({ rank }) => rank === "대상"));
-    if (cue.kind === "regular")
+    if (cue.kind === "regular") {
       assert.ok(cue.recipients.every(({ rank }) => rank !== "대상"));
+      const order = cue.recipients.map(({ rank }) => orderOf(rank));
+      assert.deepEqual(
+        order,
+        [...order].sort((left, right) => left - right),
+      );
+    }
     cursor += cue.frames;
   }
   assert.equal(
@@ -97,7 +128,7 @@ for (const [code, frames, count] of [
   assert.equal(cursor, frames);
 }
 console.log(
-  "CW/MS category, 86 award rows, 10 grand-prize cues, uniform four-second pages, production division labels and mentor/mentee labels passed.",
+  "CW/MS category, 86 award rows, 10 grand-prize cues, 7S groups and ranks, uniform four-second pages, production division labels and mentor/mentee labels passed.",
 );
 
 function run(cmd, args) {

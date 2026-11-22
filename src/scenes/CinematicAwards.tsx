@@ -193,6 +193,8 @@ const RegularAwards = ({ cue }: { cue: AwardCue }) => {
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
+          gridTemplateRows: `repeat(${Math.ceil(cue.recipients.length / columns)}, auto)`,
+          gridAutoFlow: "column",
           columnGap: "4cqw",
           rowGap: columns === 2 ? "2.7cqh" : "3.6cqh",
           width: "100%",
@@ -203,8 +205,8 @@ const RegularAwards = ({ cue }: { cue: AwardCue }) => {
         {cue.recipients.map((recipient, index) => {
           const progress = settle(
             frame,
-            fps * (0.02 + index * 0.02),
-            fps * 0.39,
+            fps * (0.02 + index * 0.078),
+            fps * 0.27,
           );
           return (
             <div
@@ -214,7 +216,7 @@ const RegularAwards = ({ cue }: { cue: AwardCue }) => {
                 gridTemplateColumns: single ? "1fr" : "7.6cqw minmax(0, 1fr)",
                 alignItems: "baseline",
                 gap: single ? "1.2cqh" : "0.75cqw",
-                opacity: 0.08 + progress * 0.92,
+                opacity: progress,
                 translate: `0px ${1.45 * (1 - progress)}cqh`,
                 minWidth: 0,
               }}

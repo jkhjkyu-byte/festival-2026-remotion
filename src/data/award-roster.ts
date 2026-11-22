@@ -192,7 +192,7 @@ export const festivalAwards: Readonly<
           "현장의 일곱 가지 낭비를 줄이고 시간·비용 개선 효과를 입증한 성과",
         recipients: [
           {
-            names: ["최조현"],
+            names: ["김태호"],
             team: "기계기술2팀",
             rank: "대상",
           },
