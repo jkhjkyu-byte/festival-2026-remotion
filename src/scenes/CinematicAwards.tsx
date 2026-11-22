@@ -8,6 +8,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { festivalAwards } from "../data/award-roster";
+import { formatMentorMenteeNames } from "../data/award-display";
 import type { AwardCue } from "../data/cinematic-timeline";
 
 type InstituteCode = AwardCue["code"];
@@ -63,16 +64,44 @@ export const CategoryIntroductions = ({ code }: { code: InstituteCode }) => {
   const phase =
     frame - Math.ceil((index * durationInFrames) / categories.length);
   const category = categories[index];
+  const alignRight =
+    (Math.floor(index / 2) + (code === "MS" ? 1 : 0)) % 2 === 1;
 
   return (
     <AbsoluteFill
       style={{
-        background: leftShade,
-        padding: "14cqh 0 13cqh 10cqw",
+        background: alignRight
+          ? "linear-gradient(270deg,#060a17ee 0%,#0a172bce 38%,#10253652 72%,transparent)"
+          : leftShade,
+        padding: alignRight ? "14cqh 8cqw 13cqh 0" : "14cqh 0 13cqh 9cqw",
+        alignItems: alignRight ? "flex-end" : "flex-start",
         justifyContent: "center",
       }}
     >
-      <div style={{ ...label, fontSize: "4.6cqh", marginBottom: "7cqh" }}>
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          bottom: "9cqh",
+          ...(alignRight ? { left: "10cqw" } : { right: "13cqw" }),
+          color: "#c2def015",
+          fontWeight: 850,
+          fontSize: "49cqh",
+          lineHeight: 1,
+          letterSpacing: "-.085em",
+          fontVariantNumeric: "tabular-nums",
+        }}
+      >
+        {String(index + 1).padStart(2, "0")}
+      </div>
+      <div
+        style={{
+          ...label,
+          width: "48cqw",
+          fontSize: "4.6cqh",
+          marginBottom: "7cqh",
+        }}
+      >
         {name} 시상 분야
       </div>
       <div style={{ width: "48cqw", minHeight: "32cqh" }}>
@@ -131,6 +160,8 @@ const RegularAwards = ({ cue }: { cue: AwardCue }) => {
   const { fps } = useVideoConfig();
   const { name, categories } = festivalAwards[cue.code];
   const category = categories[cue.categoryIndex];
+  const isMentorAward =
+    cue.code === "CW" && category.name === "멘토멘티 공동 수행과제";
   const single = cue.recipients.length === 1;
   const columns = cue.recipients.length > 4 ? 2 : 1;
 
@@ -208,7 +239,10 @@ const RegularAwards = ({ cue }: { cue: AwardCue }) => {
                     lineHeight: 1.12,
                   }}
                 >
-                  {namesFor(recipient)}
+                  {isMentorAward
+                    ? (formatMentorMenteeNames(recipient.names) ??
+                      namesFor(recipient))
+                    : namesFor(recipient)}
                 </div>
                 {recipient.names.length > 0 ? (
                   <div
@@ -348,7 +382,7 @@ const GrandHonors = ({ cue }: { cue: AwardCue }) => {
   );
 };
 
-const MileageCredits = ({ cue }: { cue: AwardCue }) => {
+const MileageRoster = ({ cue }: { cue: AwardCue }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const { name, categories } = festivalAwards[cue.code];
@@ -356,8 +390,14 @@ const MileageCredits = ({ cue }: { cue: AwardCue }) => {
   const columns = cue.recipients.length > 5 ? 2 : 1;
 
   return (
-    <AbsoluteFill style={{ padding: "10cqh 11cqw 0", background: centerShade }}>
-      <div style={{ textAlign: "center", zIndex: 1 }}>
+    <AbsoluteFill
+      style={{
+        padding: "9cqh 11cqw",
+        justifyContent: "center",
+        background: centerShade,
+      }}
+    >
+      <div style={{ textAlign: "center" }}>
         <div style={{ ...label, fontSize: "3.65cqh" }}>{name}</div>
         <div style={{ ...text, fontSize: "8.6cqh", marginTop: "1.2cqh" }}>
           {category.name}
@@ -373,14 +413,8 @@ const MileageCredits = ({ cue }: { cue: AwardCue }) => {
           gap: "2.15cqh 5.2cqw",
           width: columns === 2 ? "100%" : "64cqw",
           alignSelf: "center",
-          marginTop: "17cqh",
-          opacity: interpolate(frame, [0, fps * 0.6], [0.12, 1], easing),
-          translate: interpolate(
-            frame,
-            [0, fps * 1.3, cue.frames - 1],
-            ["0px 7cqh", "0px 0cqh", "0px -8cqh"],
-            { ...easing, easing: [easing.easing, Easing.linear] },
-          ),
+          marginTop: "7.4cqh",
+          opacity: interpolate(frame, [0, fps * 0.5], [0.18, 1], easing),
         }}
       >
         {cue.recipients.map((recipient, index) => (
@@ -415,6 +449,6 @@ const MileageCredits = ({ cue }: { cue: AwardCue }) => {
 
 export const CategoryHonors = ({ cue }: { cue: AwardCue }) => {
   if (cue.kind === "grand") return <GrandHonors cue={cue} />;
-  if (cue.kind === "credits") return <MileageCredits cue={cue} />;
+  if (cue.kind === "credits") return <MileageRoster cue={cue} />;
   return <RegularAwards cue={cue} />;
 };

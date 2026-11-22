@@ -33,7 +33,12 @@ case "${1:-master}" in
         --gl=swangle --concurrency="${FESTIVAL_CONCURRENCY:-2}" --crf=18 --audio-codec=aac
     done
     ;;
-  master)
+  master|reference)
+    output="out/redesign/festival-cinematic.mp4"
+    if [[ "${1:-master}" == reference ]]; then
+      output="out/reference-cut/festival-reference-cut.mp4"
+    fi
+    mkdir -p "$(dirname "$output")"
     width=${FESTIVAL_WIDTH:-1980}
     height=${FESTIVAL_HEIGHT:-540}
     if ! [[ "$width" =~ ^[1-9][0-9]{0,4}$ && "$height" =~ ^[1-9][0-9]{0,4}$ ]] ||
@@ -41,15 +46,15 @@ case "${1:-master}" in
       printf '%s\n' 'Set positive, even dimensions with 11:3 aspect ratio.' >&2
       exit 2
     fi
-    tmp_dir=$(mktemp -d out/redesign/.master.XXXXXX)
+    tmp_dir=$(mktemp -d "$(dirname "$output")/.master.XXXXXX")
     trap 'rm -r -- "$tmp_dir"' EXIT
     render FestivalCinematic "$tmp_dir/output.mp4" --width="$width" --height="$height" \
       --audio-codec=aac --audio-bitrate=192K --x264-preset=fast --crf=18 --jpeg-quality=88 \
       --concurrency="${FESTIVAL_CONCURRENCY:-4}"
-    mv -- "$tmp_dir/output.mp4" out/redesign/festival-cinematic.mp4
+    mv -- "$tmp_dir/output.mp4" "$output"
     ;;
   *)
-    printf '%s\n' 'Usage: bash scripts/render-cinematic.sh [proofs|plates|master]' >&2
+    printf '%s\n' 'Usage: bash scripts/render-cinematic.sh [proofs|plates|master|reference]' >&2
     exit 2
     ;;
 esac

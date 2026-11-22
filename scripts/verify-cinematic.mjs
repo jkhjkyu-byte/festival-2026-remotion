@@ -14,6 +14,30 @@ const roster = asModule(
   ),
 );
 const { festivalAwards } = await import(roster);
+const { formatMentorMenteeNames } = await import(
+  asModule(
+    stripTypeScriptTypes(
+      readFileSync(
+        new URL("../src/data/award-display.ts", import.meta.url),
+        "utf8",
+      ),
+    ),
+  )
+);
+const mentors = festivalAwards.CW.categories.find(
+  ({ name }) => name === "멘토멘티 공동 수행과제",
+);
+assert.ok(mentors);
+assert.deepEqual(
+  mentors.recipients.map(({ names }) => formatMentorMenteeNames(names)),
+  [
+    "멘토(홍동근)/멘티(김효근)",
+    "멘토(홍성일)/멘티(이동훈)",
+    "멘토(박건우, 김기웅, 김덕연)/멘티(홍승표)",
+  ],
+);
+assert.equal(formatMentorMenteeNames(["공동 수상", "수상자"]), null);
+
 const timing = stripTypeScriptTypes(
   readFileSync(
     new URL("../src/data/cinematic-timeline.ts", import.meta.url),
@@ -67,7 +91,7 @@ for (const [code, frames, count] of [
   assert.equal(cursor, frames);
 }
 console.log(
-  "CW/MS category, 86 award rows, 10 grand-prize cues, credits and timeline checks passed.",
+  "CW/MS category, 86 award rows, 10 grand-prize cues, fixed-roster timing and mentor/mentee labels passed.",
 );
 
 function run(cmd, args) {
