@@ -6,6 +6,8 @@ Remotion과 TypeScript로 제작한 180초 시상식 마스터입니다. 구성�
 
 Studio의 `FestivalCinematic`이 재제작한 180초 본편입니다. [장면 구성과 엑셀 반영 기준](docs/storyboard/cinematic-master.md), [세 가지 디자인 시안](docs/design/cinematic-redesign.md), [독립 검수](docs/reviews/cinematic-redesign-qa.md)를 참조하세요. 수상자 편집은 `src/data/award-roster.ts`에서 합니다.
 
+- [180초 재제작 마스터 MP4](deliverables/cinematic/festival-cinematic.mp4) · 1980×540, 11:3, 30 fps
+- [수정 전후 비교 이미지](deliverables/cinematic/before-after.jpg)
 - [오프닝 5초 프루프](deliverables/cinematic/proof-opening.mp4)
 - [대상 발표 5초 프루프](deliverables/cinematic/proof-award.mp4)
 - [3개 디자인 방향 비교](deliverables/cinematic/design/concept-contact.jpg)
