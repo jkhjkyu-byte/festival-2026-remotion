@@ -1,4 +1,5 @@
-// Exhibition copy is condensed from the attached workbook. Recipient rows preserve joint awards.
+// Category order and recipient rows are from default.xlsx.
+// Descriptions are condensed and joint awards share a row.
 export type Recipient = {
   readonly names: readonly string[];
   readonly team: string;
@@ -21,28 +22,6 @@ export const festivalAwards: Readonly<
   CW: {
     name: "CW생산본부",
     categories: [
-      {
-        name: "특허",
-        description:
-          "새로운 기술 아이디어를 특허로 보호하고 회사의 지식재산을 확보한 성과",
-        recipients: [
-          {
-            names: ["정준수"],
-            team: "레이다기술2팀",
-            rank: "최우수",
-          },
-          {
-            names: ["강유하"],
-            team: "기계기술1팀",
-            rank: "우수",
-          },
-          {
-            names: ["진성은"],
-            team: "기계기술1팀",
-            rank: "우수",
-          },
-        ],
-      },
       {
         name: "논문",
         description:
@@ -81,6 +60,28 @@ export const festivalAwards: Readonly<
         ],
       },
       {
+        name: "특허",
+        description:
+          "새로운 기술 아이디어를 특허로 보호하고 회사의 지식재산을 확보한 성과",
+        recipients: [
+          {
+            names: ["정준수"],
+            team: "레이다기술2팀",
+            rank: "최우수",
+          },
+          {
+            names: ["강유하"],
+            team: "기계기술1팀",
+            rank: "우수",
+          },
+          {
+            names: ["진성은"],
+            team: "기계기술1팀",
+            rank: "우수",
+          },
+        ],
+      },
+      {
         name: "BP(개발설계)",
         description:
           "개발·설계 과정의 기술 문제를 해결해 제품의 품질·성능·운영성을 높인 성과",
@@ -96,7 +97,7 @@ export const festivalAwards: Readonly<
             rank: "최우수",
           },
           {
-            names: ["이광진"],
+            names: ["이광진", "정운빈"],
             team: "융복합기술팀",
             rank: "최우수",
           },
@@ -232,7 +233,7 @@ export const festivalAwards: Readonly<
         ],
       },
       {
-        name: "멘토멘티 공동 수행과제",
+        name: "멘토멘티 협동과제",
         description:
           "멘토의 노하우를 실무에 적용하고 공동 과제를 해결해 직무 역량을 높인 성과",
         recipients: [
@@ -242,7 +243,7 @@ export const festivalAwards: Readonly<
             rank: "최우수",
           },
           {
-            names: ["멘토:홍성일 /멘티: 이동훈"],
+            names: ["멘토:홍성일 /멘티: 이동훈", "이준영"],
             team: "레이다기술2팀",
             rank: "우수",
           },
@@ -316,41 +317,46 @@ export const festivalAwards: Readonly<
     name: "미사일시스템생산본부",
     categories: [
       {
-        name: "특허",
+        name: "논문",
         description:
-          "새로운 기술 아이디어를 특허로 보호하고 회사의 지식재산을 확보한 성과",
+          "기술 문제를 연구·분석하고 논문으로 정리해 기술 지식을 쌓은 성과",
         recipients: [
           {
-            names: ["신지훈"],
-            team: "기계융합기술팀",
+            names: ["곽태산", "박성열", "송의정"],
+            team: "기계기술팀",
             rank: "대상",
           },
           {
-            names: ["천수경", "김창일"],
+            names: ["임경욱"],
+            team: "1팀",
+            rank: "최우수",
+          },
+          {
+            names: ["김하림"],
             team: "3팀",
             rank: "최우수",
           },
         ],
       },
       {
-        name: "논문",
+        name: "특허",
         description:
-          "기술 문제를 연구·분석하고 논문으로 정리해 기술 지식을 쌓은 성과",
+          "새로운 기술 아이디어를 특허로 보호하고 회사의 지식재산을 확보한 성과",
         recipients: [
           {
-            names: ["황태용"],
-            team: "2팀",
-            rank: "대상",
-          },
-          {
-            names: ["정현채"],
-            team: "1팀",
+            names: ["김달중"],
+            team: "기계기술팀",
             rank: "최우수",
           },
           {
-            names: ["김하성"],
-            team: "미사일시스템생산실.5팀",
-            rank: "최우수",
+            names: ["문건우"],
+            team: "기계기술팀",
+            rank: "우수",
+          },
+          {
+            names: ["송현석"],
+            team: "5팀",
+            rank: "우수",
           },
         ],
       },
@@ -360,19 +366,34 @@ export const festivalAwards: Readonly<
           "개발·설계 과정의 기술 문제를 해결해 제품의 품질·성능·운영성을 높인 성과",
         recipients: [
           {
-            names: ["공병민", "신상용"],
+            names: ["윤준희", "김창일"],
             team: "3팀",
             rank: "대상",
           },
           {
-            names: ["안철완"],
-            team: "6팀",
+            names: ["신지훈"],
+            team: "융합기술팀",
             rank: "최우수",
           },
           {
-            names: ["정진호"],
-            team: "기계융합기술팀",
+            names: ["허영훈"],
+            team: "1팀",
             rank: "최우수",
+          },
+          {
+            names: ["정경훈", "이성진"],
+            team: "3팀",
+            rank: "우수",
+          },
+          {
+            names: ["성홍운"],
+            team: "3팀",
+            rank: "우수",
+          },
+          {
+            names: ["박나영"],
+            team: "융합기술팀",
+            rank: "우수",
           },
           {
             names: ["김동환"],
@@ -380,102 +401,72 @@ export const festivalAwards: Readonly<
             rank: "우수",
           },
           {
-            names: ["김병훈"],
-            team: "1팀",
-            rank: "우수",
-          },
-          {
-            names: ["신지훈", "최우혁"],
-            team: "기계융합기술팀",
-            rank: "우수",
-          },
-          {
-            names: ["박나영"],
-            team: "기계융합기술팀",
-            rank: "우수",
-          },
-          {
-            names: ["윤진희"],
-            team: "3팀",
+            names: ["송원효"],
+            team: "융합기술팀",
             rank: "우수",
           },
         ],
       },
       {
-        name: "BP(제조/전문기술)",
+        name: "BP(제조전문)",
         description:
-          "제조 현장의 기술 문제를 해결하고 전문 기술과 노하우를 쌓은 성과",
+          "분야별 전문성과 노하우로 기술 과제를 해결하고 기술 기반을 강화한 성과",
         recipients: [
           {
-            names: ["손진우"],
-            team: "미사일시스템생산실.2팀",
+            names: ["김성훈"],
+            team: "생산2실.3팀",
             rank: "대상",
           },
           {
             names: ["김진미", "이수환"],
-            team: "5팀",
+            team: "기술기획팀",
             rank: "최우수",
           },
           {
-            names: ["김병후"],
-            team: "미사일시스템생산실.3팀",
+            names: ["한정원"],
+            team: "MRO연구개발단.1팀",
             rank: "우수",
           },
           {
-            names: ["오승민"],
-            team: "미사일시스템생산실.공정기술팀",
+            names: ["이중엽"],
+            team: "MRO연구개발단.1팀",
             rank: "우수",
           },
           {
-            names: ["김성훈"],
-            team: "미사일시스템생산실.김천생산팀",
+            names: ["손진우"],
+            team: "생산1실.3팀",
             rank: "우수",
           },
           {
-            names: ["이중엽", "송정훈", "김민준", "유지상", "박주연"],
-            team: "미사일시스템IPS연구소.5팀",
+            names: ["김태욱"],
+            team: "생산2실.1팀",
             rank: "우수",
-          },
-          {
-            names: ["박상호"],
-            team: "미사일시스템생산실.1팀",
-            rank: "장려",
-          },
-          {
-            names: ["신기섭"],
-            team: "미사일시스템생산실.5팀",
-            rank: "장려",
-          },
-          {
-            names: ["장동재"],
-            team: "미사일시스템IPS연구소.5팀",
-            rank: "장려",
           },
         ],
       },
       {
         name: "BP(혁신과제)",
         description:
-          "업무 효율과 생산성을 높이고 비용을 절감하는 개선 과제를 발굴한 활동",
+          "업무 효율과 생산성을 높이고 비용을 줄이는 개선 과제를 발굴·추진한 활동",
         recipients: [
           {
-            names: ["이강호"],
-            team: "기계융합기술팀",
+            names: ["송원효"],
+            team: "융합기술팀",
             rank: "대상",
           },
           {
-            names: ["현종훈"],
-            team: "기계융합기술팀",
+            names: ["안철완"],
+            team: "5팀",
             rank: "최우수",
           },
           {
-            names: ["이재봉"],
-            team: "미사일시스템생산실.3팀",
+            names: ["하경준"],
+            team: "생산2실.3팀",
             rank: "우수",
           },
           {
-            names: ["신규태"],
-            team: "기계융합기술팀",
+            names: ["박상호"],
+            team: "생산2실.2팀",
             rank: "장려",
           },
         ],
@@ -490,6 +481,16 @@ export const festivalAwards: Readonly<
             team: "1팀",
             rank: "최우수",
           },
+          {
+            names: ["배현진"],
+            team: "1팀",
+            rank: "최우수",
+          },
+          {
+            names: ["김준기"],
+            team: "3팀",
+            rank: "최우수",
+          },
         ],
       },
       {
@@ -498,18 +499,18 @@ export const festivalAwards: Readonly<
           "대학과 함께 연구개발해 필요한 기술을 확보하고 현장 문제를 해결한 성과",
         recipients: [
           {
-            names: ["허영훈"],
+            names: ["정현채"],
             team: "1팀",
             rank: "최우수",
           },
           {
-            names: ["박재민"],
-            team: "기계융합기술팀",
+            names: ["성홍운"],
+            team: "3팀",
             rank: "최우수",
           },
           {
-            names: ["김종진", "강동훈"],
-            team: "미사일시스템IPS연구소.5팀",
+            names: ["정진호"],
+            team: "기계기술팀",
             rank: "최우수",
           },
         ],
@@ -520,38 +521,43 @@ export const festivalAwards: Readonly<
           "업무 개선 아이디어를 발굴하고 현장에서 실제 변화로 이어 간 노력",
         recipients: [
           {
-            names: ["박병수"],
-            team: "미사일시스템생산실.1팀",
-            rank: "",
-          },
-          {
-            names: ["오현표"],
-            team: "미사일시스템생산실.2팀",
-            rank: "",
-          },
-          {
-            names: ["최홍연"],
-            team: "미사일시스템생산실.2팀",
-            rank: "",
-          },
-          {
-            names: ["손진우"],
-            team: "미사일시스템생산실.2팀",
-            rank: "",
-          },
-          {
-            names: ["김성호"],
-            team: "미사일시스템생산실.3팀",
-            rank: "",
-          },
-          {
             names: ["정재혁"],
-            team: "미사일시스템생산실.5팀",
+            team: "생산1실.1팀",
             rank: "",
           },
           {
-            names: ["강태훈"],
-            team: "미사일시스템생산실.김천생산팀",
+            names: ["정현근"],
+            team: "생산1실.5팀",
+            rank: "",
+          },
+          {
+            names: ["김병후"],
+            team: "생산2실.2팀",
+            rank: "",
+          },
+          {
+            names: ["고정우"],
+            team: "생산2실.3팀",
+            rank: "",
+          },
+          {
+            names: ["이동규"],
+            team: "생산2실.3팀",
+            rank: "",
+          },
+          {
+            names: ["김민교"],
+            team: "생산2실.3팀",
+            rank: "",
+          },
+          {
+            names: ["김영서"],
+            team: "생산2실.3팀",
+            rank: "",
+          },
+          {
+            names: ["임형우"],
+            team: "생산2실.3팀",
             rank: "",
           },
         ],

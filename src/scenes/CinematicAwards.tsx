@@ -160,8 +160,6 @@ const RegularAwards = ({ cue }: { cue: AwardCue }) => {
   const { fps } = useVideoConfig();
   const { name, categories } = festivalAwards[cue.code];
   const category = categories[cue.categoryIndex];
-  const isMentorAward =
-    cue.code === "CW" && category.name === "멘토멘티 공동 수행과제";
   const single = cue.recipients.length === 1;
   const columns = cue.recipients.length > 4 ? 2 : 1;
 
@@ -241,10 +239,8 @@ const RegularAwards = ({ cue }: { cue: AwardCue }) => {
                     lineHeight: 1.12,
                   }}
                 >
-                  {isMentorAward
-                    ? (formatMentorMenteeNames(recipient.names) ??
-                      namesFor(recipient))
-                    : namesFor(recipient)}
+                  {formatMentorMenteeNames(recipient.names) ??
+                    namesFor(recipient)}
                 </div>
                 {recipient.names.length > 0 ? (
                   <div

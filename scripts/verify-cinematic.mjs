@@ -25,14 +25,14 @@ const { formatMentorMenteeNames } = await import(
   )
 );
 const mentors = festivalAwards.CW.categories.find(
-  ({ name }) => name === "멘토멘티 공동 수행과제",
+  ({ name }) => name === "멘토멘티 협동과제",
 );
 assert.ok(mentors);
 assert.deepEqual(
   mentors.recipients.map(({ names }) => formatMentorMenteeNames(names)),
   [
     "멘토(홍동근)/멘티(김효근)",
-    "멘토(홍성일)/멘티(이동훈)",
+    "멘토(홍성일)/멘티(이동훈, 이준영)",
     "멘토(박건우, 김기웅, 김덕연)/멘티(홍승표)",
   ],
 );
@@ -49,9 +49,9 @@ const { masterCues, getInstituteAwardCues, durationInFrames, cardFrames } =
 
 assert.deepEqual(
   masterCues.map(({ from }) => from),
-  [0, 300, 660, 1740, 3420, 4500, 6060, 6300, 6600],
+  [0, 300, 660, 1740, 3420, 4500, 5940, 6180, 6480],
 );
-assert.equal(durationInFrames, 6720);
+assert.equal(durationInFrames, 6600);
 assert.equal(cardFrames, 120);
 assert.equal(festivalAwards.CW.name, "CW생산본부");
 assert.equal(festivalAwards.MS.name, "미사일시스템생산본부");
@@ -84,11 +84,44 @@ assert.deepEqual(
 );
 assert.deepEqual(seven[2].recipients[0].names, ["김태호"]);
 
-for (const [code, frames, count] of [
-  ["CW", 1680, 49],
-  ["MS", 1560, 37],
-]) {
-  assert.equal(festivalAwards[code].categories.length, 8);
+const expected = {
+  CW: {
+    frames: 1680,
+    categories: [
+      ["논문", 6, 1],
+      ["특허", 3, 0],
+      ["BP(개발설계)", 9, 1],
+      ["BP(전문기술)", 2, 1],
+      ["BP(혁신과제)", 6, 1],
+      ["7S 낭비제거활동", 10, 1],
+      ["멘토멘티 협동과제", 3, 0],
+      ["실시제안 마일리지", 10, 0],
+    ],
+  },
+  MS: {
+    frames: 1440,
+    categories: [
+      ["논문", 3, 1],
+      ["특허", 3, 0],
+      ["BP(개발설계)", 8, 1],
+      ["BP(제조전문)", 6, 1],
+      ["BP(혁신과제)", 4, 1],
+      ["부품국산화", 3, 0],
+      ["산학과제", 3, 0],
+      ["실시제안 마일리지", 8, 0],
+    ],
+  },
+};
+for (const [code, { frames, categories }] of Object.entries(expected)) {
+  assert.deepEqual(
+    festivalAwards[code].categories.map(({ name, recipients }) => [
+      name,
+      recipients.length,
+      recipients.filter(({ rank }) => rank === "대상").length,
+    ]),
+    categories,
+  );
+  const count = categories.reduce((sum, [, size]) => sum + size, 0);
   const cues = getInstituteAwardCues(code);
   let cursor = 0;
   for (const cue of cues) {
@@ -123,12 +156,17 @@ for (const [code, frames, count] of [
     new Set(cues.flatMap(({ recipients }) => recipients)).size,
     count,
   );
-  assert.equal(cues.filter(({ kind }) => kind === "grand").length, 5);
+  assert.deepEqual(
+    cues
+      .filter(({ kind }) => kind === "grand")
+      .map(({ categoryIndex }) => categoryIndex),
+    categories.flatMap(([, , grand], index) => (grand ? [index] : [])),
+  );
   assert.equal(cues.at(-1).kind, "credits");
   assert.equal(cursor, frames);
 }
 console.log(
-  "CW/MS category, 86 award rows, 10 grand-prize cues, 7S groups and ranks, uniform four-second pages, production division labels and mentor/mentee labels passed.",
+  "CW/MS category order and counts, 87 award rows, nine grand-prize cues, 7S groups and ranks, uniform four-second pages, production division labels and mentor/mentee labels passed.",
 );
 
 function run(cmd, args) {

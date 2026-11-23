@@ -33,7 +33,7 @@ case "${1:-master}" in
         --gl=swangle --concurrency="${FESTIVAL_CONCURRENCY:-2}" --crf=18 --audio-codec=aac
     done
     ;;
-  master|reference|ceremony|awards-order)
+  master|reference|ceremony|awards-order|roster-quiz)
     output="out/redesign/festival-cinematic.mp4"
     if [[ "${1:-master}" == reference ]]; then
       output="out/reference-cut/festival-reference-cut.mp4"
@@ -41,6 +41,8 @@ case "${1:-master}" in
       output="out/ceremony-cut/festival-ceremony-cut.mp4"
     elif [[ "${1:-master}" == awards-order ]]; then
       output="out/awards-order/festival-awards-order.mp4"
+    elif [[ "${1:-master}" == roster-quiz ]]; then
+      output="out/roster-quiz/festival-roster-quiz.mp4"
     fi
     mkdir -p "$(dirname "$output")"
     width=${FESTIVAL_WIDTH:-1980}
@@ -58,7 +60,7 @@ case "${1:-master}" in
     mv -- "$tmp_dir/output.mp4" "$output"
     ;;
   *)
-    printf '%s\n' 'Usage: bash scripts/render-cinematic.sh [proofs|plates|master|reference|ceremony|awards-order]' >&2
+    printf '%s\n' 'Usage: bash scripts/render-cinematic.sh [proofs|plates|master|reference|ceremony|awards-order|roster-quiz]' >&2
     exit 2
     ;;
 esac

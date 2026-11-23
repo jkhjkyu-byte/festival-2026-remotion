@@ -8,6 +8,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { festivalCopy } from "../data/production";
+import { QuizGift, quizPopFrame } from "../three/QuizGift";
 
 const porcelain = "#F5F4F1";
 const ice = "#C4D4E1";
@@ -303,344 +304,89 @@ export const ScheduleTitle = () => (
   </AbsoluteFill>
 );
 
-const ribbonTrails = [
-  {
-    path: "M408 259C468 202 512 246 545 171S617 105 683 125",
-    color: "#E8A942",
-    delay: 0,
-    width: 10,
-  },
-  {
-    path: "M402 254C366 176 290 208 289 142S248 69 193 96",
-    color: "#F8DA93",
-    delay: 0.045,
-    width: 8,
-  },
-  {
-    path: "M420 260C453 233 463 192 453 142S500 67 518 46",
-    color: "#FFF0C1",
-    delay: 0.1,
-    width: 5,
-  },
-  {
-    path: "M396 259C363 205 388 154 355 121S307 100 305 58",
-    color: "#CB7335",
-    delay: 0.12,
-    width: 6,
-  },
-  {
-    path: "M429 266C476 226 548 281 596 216S682 212 706 170",
-    color: "#F2C165",
-    delay: 0.17,
-    width: 4,
-  },
-  {
-    path: "M396 262C345 221 259 250 229 194S160 180 133 148",
-    color: "#D39961",
-    delay: 0.2,
-    width: 5,
-  },
-] as const;
-
-type BoxPoint = readonly [x: number, y: number, depth: number];
-
-const projectPoint = ([x, y, depth]: BoxPoint) =>
-  [
-    434 + x * 0.94 - depth * 0.4,
-    365 + x * 0.15 - y * 0.87 + depth * 0.29,
-  ] as const;
-
-const polygon = (...vertices: BoxPoint[]) =>
-  vertices.map((vertex) => projectPoint(vertex).join(",")).join(" ");
-
-const GiftVisual = () => {
-  const frame = useCurrentFrame();
+const QuizInvitation = () => {
   const { fps } = useVideoConfig();
-  const seconds = frame / fps;
-  const opened = interpolate(
-    seconds,
-    [2.25, 2.56, 3.36, 3.94],
-    [0, 0.045, 1.03, 1],
-    {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-      easing: Easing.bezier(0.36, 0, 0.26, 1),
-    },
-  );
-  const caseGlow = interpolate(
-    seconds,
-    [2.08, 2.48, 3.09, 4.85, 9.9],
-    [0, 0.18, 0.95, 0.51, 0.36],
-    {
-      extrapolateLeft: "clamp",
-      extrapolateRight: "clamp",
-    },
-  );
-  const angle = opened * (Math.PI * 0.62);
-  const lidPoint = (x: number, thickness: number, depth: number): BoxPoint => [
-    x,
-    125 + Math.sin(angle) * depth + Math.cos(angle) * thickness,
-    Math.cos(angle) * depth - Math.sin(angle) * thickness,
-  ];
-  const bowOrigin = projectPoint(lidPoint(0, 18, 82));
-  const entered = interpolate(seconds, [0.12, 1.55], [0, 1], easeOut);
-  const hold = interpolate(seconds, [4, 9.8], [0, 1], easeOut);
+  const pop = quizPopFrame / fps;
 
   return (
-    <svg
-      viewBox="0 0 830 510"
-      aria-hidden="true"
+    <div
       style={{
-        position: "absolute",
-        right: "5.5%",
-        top: 0,
-        width: "47%",
-        height: "100%",
-        overflow: "visible",
-        opacity: entered,
-        translate: `${(1 - entered) * 2.8 - hold * 0.6}cqw ${(1 - entered) * 3.2}cqh`,
-        scale: 0.93 + entered * 0.07 + hold * 0.023,
+        ...textArea,
+        left: "10%",
+        right: "52%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        justifyContent: "center",
       }}
     >
-      <defs>
-        <linearGradient id="quiz-front" x1="0" x2="1" y1="0" y2=".75">
-          <stop stopColor="#754439" />
-          <stop offset=".34" stopColor="#4A2727" />
-          <stop offset="1" stopColor="#21131D" />
-        </linearGradient>
-        <linearGradient id="quiz-side" x1="0" x2="1" y1="0" y2="1">
-          <stop stopColor="#5A312B" />
-          <stop offset="1" stopColor="#20131A" />
-        </linearGradient>
-        <linearGradient id="quiz-lid" x1="0" x2="1" y1="0" y2="1">
-          <stop stopColor="#BB7D62" />
-          <stop offset=".51" stopColor="#6F3E36" />
-          <stop offset="1" stopColor="#352027" />
-        </linearGradient>
-        <linearGradient id="quiz-gold" x1="0" x2="1" y1="0" y2="1">
-          <stop stopColor="#97531F" />
-          <stop offset=".26" stopColor="#F5CC73" />
-          <stop offset=".51" stopColor="#FFE8A5" />
-          <stop offset=".74" stopColor="#C58642" />
-          <stop offset="1" stopColor="#9E5527" />
-        </linearGradient>
-        <radialGradient id="quiz-glow">
-          <stop stopColor="#FFF3B6" stopOpacity=".95" />
-          <stop offset=".31" stopColor="#FFCD69" stopOpacity=".63" />
-          <stop offset=".64" stopColor="#BA572F" stopOpacity=".22" />
-          <stop offset="1" stopColor="#A33F21" stopOpacity="0" />
-        </radialGradient>
-        <radialGradient id="quiz-shadow">
-          <stop stopColor="#0A060B" stopOpacity=".96" />
-          <stop offset="1" stopColor="#0A060B" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <ellipse cx="399" cy="414" rx="244" ry="62" fill="url(#quiz-shadow)" />
-      <ellipse
-        cx="402"
-        cy="407"
-        rx="274"
-        ry="43"
-        fill="url(#quiz-glow)"
-        opacity={caseGlow * 0.48}
-      />
-      <ellipse
-        cx="407"
-        cy="237"
-        rx="305"
-        ry="216"
-        fill="url(#quiz-glow)"
-        opacity={caseGlow * 0.67}
-      />
-      <polygon
-        points={polygon(
-          [-139, 124, 0],
-          [139, 124, 0],
-          [139, 124, 170],
-          [-139, 124, 170],
-        )}
-        fill="#1A1020"
-      />
-      <polygon
-        points={polygon(
-          [-127, 126, 12],
-          [128, 126, 12],
-          [128, 126, 159],
-          [-127, 126, 159],
-        )}
-        fill="#F3B958"
-        opacity={caseGlow * 0.91}
-      />
-      <polygon
-        points={polygon(
-          [-139, 124, 170],
-          [139, 124, 170],
-          [139, 0, 170],
-          [-139, 0, 170],
-        )}
-        fill="url(#quiz-front)"
-        stroke="#D7996470"
-        strokeWidth="1.4"
-      />
-      <polygon
-        points={polygon(
-          [139, 124, 170],
-          [139, 124, 0],
-          [139, 0, 0],
-          [139, 0, 170],
-        )}
-        fill="url(#quiz-side)"
-        stroke="#BC825359"
-        strokeWidth="1.4"
-      />
-      <polygon
-        points={polygon(
-          [-25, 124, 171],
-          [25, 124, 171],
-          [25, 0, 171],
-          [-25, 0, 171],
-        )}
-        fill="url(#quiz-gold)"
-      />
-      <polygon
-        points={polygon(
-          [-137, 124, 170],
-          [137, 124, 170],
-          [137, 121, 170],
-          [-137, 121, 170],
-        )}
-        fill="#FDD17B"
-        opacity={caseGlow}
-      />
-      <g strokeLinejoin="round" strokeWidth="1.2">
-        <polygon
-          points={polygon(
-            lidPoint(-145, 18, -5),
-            lidPoint(145, 18, -5),
-            lidPoint(145, 18, 175),
-            lidPoint(-145, 18, 175),
-          )}
-          fill="url(#quiz-lid)"
-          stroke="#DEA879B0"
-        />
-        <polygon
-          points={polygon(
-            lidPoint(-26, 18.3, -5),
-            lidPoint(26, 18.3, -5),
-            lidPoint(26, 18.3, 175),
-            lidPoint(-26, 18.3, 175),
-          )}
-          fill="url(#quiz-gold)"
-        />
-        <polygon
-          points={polygon(
-            lidPoint(-145, 18, 175),
-            lidPoint(145, 18, 175),
-            lidPoint(145, 0, 175),
-            lidPoint(-145, 0, 175),
-          )}
-          fill="url(#quiz-front)"
-          stroke="#CD935A"
-        />
-        <polygon
-          points={polygon(
-            lidPoint(145, 18, -5),
-            lidPoint(145, 18, 175),
-            lidPoint(145, 0, 175),
-            lidPoint(145, 0, -5),
-          )}
-          fill="url(#quiz-side)"
-          stroke="#C48459"
-        />
-        <polygon
-          points={polygon(
-            lidPoint(-26, 18, 175.25),
-            lidPoint(26, 18, 175.25),
-            lidPoint(26, 0, 175.25),
-            lidPoint(-26, 0, 175.25),
-          )}
-          fill="url(#quiz-gold)"
-        />
-      </g>
-      <g
-        transform={`translate(${bowOrigin[0]} ${bowOrigin[1]}) rotate(${-7 + opened * 21})`}
-        stroke="url(#quiz-gold)"
-        strokeWidth="6"
-        fill="#6E352680"
-        strokeLinejoin="round"
+      <Reveal
+        name="퀴즈 제목"
+        from={0.34}
+        to={1.02}
+        style={{
+          color: "#F5DA9B",
+          fontSize: "5.45cqh",
+          fontWeight: 800,
+          letterSpacing: "0.15em",
+        }}
       >
-        <path d="M0 0C-20-36-66-44-61-14C-58 7-22 7 0 0C23-32 64-40 61-12C56 7 24 7 0 0Z" />
-        <path d="M-3 1C-15 11-29 18-39 27M3 1C18 8 27 17 32 25" fill="none" />
-        <path d="M-7-4H7V4H-7Z" fill="#F8D786" strokeWidth="1.7" />
-      </g>
-      {ribbonTrails.map(({ path, color, delay, width }) => {
-        const start = 2.7 + delay;
-        const draw = interpolate(
-          seconds,
-          [start, start + 1.48],
-          [1, 0],
-          easeOut,
-        );
-        const fade = interpolate(
-          seconds,
-          [start, start + 0.22, 4.5 + delay, 6.45 + delay],
-          [0, 1, 0.9, 0],
-          {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          },
-        );
-        return (
-          <path
-            key={path}
-            d={path}
-            pathLength="1"
-            strokeDasharray="1"
-            strokeDashoffset={draw}
-            fill="none"
-            stroke={color}
-            strokeWidth={width}
-            opacity={fade}
-            strokeLinecap="round"
-          />
-        );
-      })}
-      {Array.from({ length: 23 }, (_, index) => {
-        const spread = interpolate(
-          seconds,
-          [2.76 + index * 0.019, 4.65 + index * 0.028],
-          [0, 1],
-          easeOut,
-        );
-        const fade = interpolate(
-          seconds,
-          [2.76 + index * 0.019, 3.35 + index * 0.019, 5.25 + index * 0.031],
-          [0, 0.88, 0],
-          {
-            extrapolateLeft: "clamp",
-            extrapolateRight: "clamp",
-          },
-        );
-        const direction = Math.PI * (1.05 + ((index * 37) % 97) / 107);
-        const distance = 72 + ((index * 59) % 214);
-        const x = 396 + Math.cos(direction) * distance * spread;
-        const y =
-          255 + Math.sin(direction) * distance * spread + 37 * spread * spread;
-        const size = 1.2 + (index % 4) * 0.72;
-        return (
-          <rect
-            key={index}
-            x={x}
-            y={y}
-            width={size * 2.5}
-            height={size}
-            transform={`rotate(${index * 34 + seconds * 36} ${x} ${y})`}
-            fill={index % 3 === 0 ? "#F3AD61" : "#FFE3A3"}
-            opacity={fade}
-          />
-        );
-      })}
-    </svg>
+        <span lang="en">QUIZ EVENT</span>
+      </Reveal>
+      <Reveal name="시상식 퀴즈 참여" from={0.66} to={1.35}>
+        <p
+          style={{
+            margin: "1.9cqh 0 0",
+            color: "#F1EDE7",
+            fontSize: "5.5cqh",
+            fontWeight: 590,
+            letterSpacing: "-0.035em",
+          }}
+        >
+          시상식 현장에서 퀴즈를 풀고
+        </p>
+      </Reveal>
+      <Reveal name="경품 안내" from={pop + 0.08} to={pop + 0.8}>
+        <h2
+          style={{
+            margin: "0.75cqh 0 0",
+            color: porcelain,
+            fontSize: "9.15cqh",
+            fontWeight: 820,
+            letterSpacing: "-0.055em",
+            lineHeight: 1.16,
+            textShadow,
+            whiteSpace: "nowrap",
+          }}
+        >
+          푸짐한 경품에 도전하세요!
+        </h2>
+      </Reveal>
+    </div>
+  );
+};
+
+const QuizLighting = () => {
+  const frame = useCurrentFrame();
+  const bloom = interpolate(
+    frame,
+    [quizPopFrame, quizPopFrame + 5, quizPopFrame + 15, quizPopFrame + 63],
+    [0.42, 1, 0.76, 0.53],
+    easeOut,
+  );
+
+  return (
+    <AbsoluteFill
+      aria-hidden="true"
+      style={{
+        opacity: bloom,
+        background: [
+          "radial-gradient(ellipse 25% 13% at 72% 93%, #B7703170 0%, #A46B2934 32%, transparent 74%)",
+          "radial-gradient(ellipse 16% 40% at 73% 63%, #C182384A 0%, transparent 84%)",
+          "conic-gradient(from 11deg at 72% 79%, transparent 0deg, #D8A05215 8deg, #D8A05224 14deg, transparent 27deg 360deg)",
+        ].join(", "),
+      }}
+    />
   );
 };
 
@@ -648,54 +394,20 @@ export const QuizTitle = () => (
   <AbsoluteFill
     style={{
       background:
-        "radial-gradient(ellipse 47% 80% at 72% 58%, #76391FA8 0%, #421D29C8 43%, #140D18EC 79%, #0B0811F5 100%)",
+        "radial-gradient(ellipse 47% 90% at 75% 66%, #3A2A1D 0%, #1B1920 39%, #0D1422 68%, #090E18 100%)",
     }}
   >
-    <GiftVisual />
+    <QuizLighting />
     <div
+      aria-hidden="true"
       style={{
-        ...textArea,
-        right: "53%",
-        display: "grid",
-        gap: "2.75cqh",
-        alignContent: "center",
-        justifyItems: "start",
-        textAlign: "left",
+        position: "absolute",
+        inset: "0 3% 0 46%",
       }}
     >
-      <Reveal name="퀴즈 제목" from={1.18} to={1.99}>
-        <h2
-          lang="en"
-          style={{
-            margin: 0,
-            color: porcelain,
-            fontSize: "15.4cqh",
-            fontWeight: 840,
-            letterSpacing: "-0.065em",
-            lineHeight: 1.08,
-            textShadow,
-            whiteSpace: "nowrap",
-          }}
-        >
-          QUIZ EVENT
-        </h2>
-      </Reveal>
-      <Reveal name="퀴즈 참여 장소" from={3.42} to={4.16}>
-        <p
-          lang="ko"
-          style={{
-            margin: 0,
-            color: "#F3CB90",
-            fontSize: "5.5cqh",
-            fontWeight: 650,
-            lineHeight: 1.3,
-            textShadow,
-          }}
-        >
-          시상식 현장
-        </p>
-      </Reveal>
+      <QuizGift />
     </div>
+    <QuizInvitation />
   </AbsoluteFill>
 );
 

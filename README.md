@@ -1,10 +1,22 @@
 # 2026 기술·혁신 FESTIVAL
 
-Remotion과 TypeScript로 제작한 180초 시상식 마스터입니다. 구성은 오프닝, 일정, 시상 분야, CW 시상, 미사일시스템 시상, 퀴즈, 엔딩입니다. Studio의 `FestivalMaster`는 **3960×1080, 11:3, 30 fps** 작업 해상도로 설정되어 있습니다.
+Remotion과 TypeScript로 제작한 시상식 영상입니다. 최신 본편은 Studio의 `FestivalCinematic`에서 확인할 수 있습니다. 작업 해상도는 3960×1080, 배포본은 1980×540이며, 두 영상 모두 11:3, 30 fps입니다.
 
-## 최신 7S·시상 순서 수정판
+## 최신 명단·퀴즈 수정판
 
-- [3분 44초 최신본 MP4](deliverables/awards-order/festival-awards-order.mp4)
+- [3분 40초 본편 MP4](deliverables/roster-quiz/festival-roster-quiz.mp4)
+- [주요 장면 모음](deliverables/roster-quiz/scene-review.jpg) · [검수 결과](docs/reviews/updated-roster-qa.md)
+
+`default.xlsx`의 CW 49건, MS 38건을 본부별 데이터에 반영했습니다. 분야 소개와 수상 화면은 각각 4초이며, 대상 발표는 엑셀에 대상이 있는 분야에 배정합니다. 03:26부터 시상식 현장 퀴즈와 경품을 안내합니다.
+
+```bash
+REMOTION_BROWSER_EXECUTABLE=/usr/bin/chromium npm run render:cinematic -- roster-quiz
+node --disable-warning=ExperimentalWarning scripts/verify-cinematic.mjs out/roster-quiz/festival-roster-quiz.mp4
+```
+
+## 이전 7S·시상 순서 수정판
+
+- [3분 44초 이전본 MP4](deliverables/awards-order/festival-awards-order.mp4)
 - [7S·시상 순서 장면 모음](deliverables/awards-order/scene-review.jpg) · [검수 결과](docs/reviews/awards-order-qa.md)
 
 7S는 개인 수상자 6명, 팀 시상 3건, 대상 김태호를 총 세 화면에 표시한다. 일반 시상은 최우수 → 우수 → 장려 순서로 정렬하고, 두 열에서는 왼쪽 위에서 아래로 공개한 뒤 오른쪽 열을 공개한다. 대상 공개에는 새로 합성한 부드러운 차임을 사용한다.

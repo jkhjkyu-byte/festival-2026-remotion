@@ -10,6 +10,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+import { quizPopFrame } from "../three/QuizGift";
 import {
   getInstituteAwardCues,
   instituteIntroSeconds,
@@ -246,10 +247,10 @@ const scenes = [
         <QuizTitle />
         <Bed cue="quiz" />
         <Sequence
-          from={76}
-          durationInFrames={35}
+          from={quizPopFrame}
+          durationInFrames={36}
           layout="none"
-          name="선물 리본 효과음"
+          name="선물상자 개봉 효과음"
         >
           <Audio
             src={staticFile("assets/reference-cut/gift-pop.wav")}
