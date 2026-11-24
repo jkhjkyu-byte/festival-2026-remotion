@@ -241,7 +241,7 @@ const scenes = [
     ),
   },
   {
-    name: "참석자 퀴즈 안내",
+    name: "전시 포스터 퀴즈 안내",
     Scene: () => (
       <>
         <QuizTitle />

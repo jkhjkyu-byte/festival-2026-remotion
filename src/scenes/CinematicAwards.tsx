@@ -11,6 +11,7 @@ import { festivalAwards } from "../data/award-roster";
 import {
   formatMentorMenteeNames,
   groupRecipientsByRank,
+  layoutRecipientRows,
 } from "../data/award-display";
 import type { AwardCue } from "../data/cinematic-timeline";
 
@@ -162,12 +163,10 @@ const RankColumn = ({
   rank,
   members,
   offset,
-  density,
 }: {
   readonly rank: string;
   readonly members: readonly Recipient[];
   readonly offset: number;
-  readonly density: number;
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
@@ -188,48 +187,72 @@ const RankColumn = ({
           {rank}
         </div>
       )}
-      <div style={{ display: "grid", gap: `${density * 1.3}cqh` }}>
-        {members.map((recipient, index) => {
-          const progress = settle(
-            frame,
-            fps * (0.02 + (offset + index) * 0.078),
-            fps * 0.27,
-          );
-          return (
-            <div
-              key={index}
-              style={{
-                minWidth: 0,
-                opacity: progress,
-                translate: `0px ${1.45 * (1 - progress)}cqh`,
-              }}
-            >
-              <div
-                style={{
-                  ...text,
-                  fontSize: `${density * 5.9}cqh`,
-                  lineHeight: 1.12,
-                }}
-              >
-                {formatMentorMenteeNames(recipient.names) ??
-                  namesFor(recipient)}
-              </div>
-              {recipient.names.length > 0 && (
+      <div style={{ display: "grid", gap: "3.1cqh" }}>
+        {layoutRecipientRows(members).map(({ start, members: row }) => (
+          <div
+            key={start}
+            style={{
+              display: "grid",
+              gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
+              gap: "1.2cqw",
+            }}
+          >
+            {row.map((recipient, index) => {
+              const progress = settle(
+                frame,
+                fps * (0.02 + (offset + start + index) * 0.078),
+                fps * 0.27,
+              );
+              const roles = formatMentorMenteeNames(recipient.names)?.split(
+                " / ",
+              );
+              return (
                 <div
+                  key={index}
                   style={{
-                    ...text,
-                    color: "#CCD8E3",
-                    fontWeight: 500,
-                    fontSize: `${density * 3.7}cqh`,
-                    marginTop: "0.32cqh",
+                    minWidth: 0,
+                    opacity: progress,
+                    translate: `0px ${1.45 * (1 - progress)}cqh`,
                   }}
                 >
-                  {recipient.team}
+                  <div
+                    style={{
+                      ...text,
+                      fontSize: roles ? "4.85cqh" : "5.9cqh",
+                      lineHeight: 1.12,
+                    }}
+                  >
+                    {roles ? (
+                      <>
+                        <span style={{ display: "inline-block" }}>
+                          {roles[0]} /
+                        </span>{" "}
+                        <span style={{ display: "inline-block" }}>
+                          {roles[1]}
+                        </span>
+                      </>
+                    ) : (
+                      namesFor(recipient)
+                    )}
+                  </div>
+                  {recipient.names.length > 0 && (
+                    <div
+                      style={{
+                        ...text,
+                        color: "#CCD8E3",
+                        fontWeight: 500,
+                        fontSize: "3.7cqh",
+                        marginTop: "0.45cqh",
+                      }}
+                    >
+                      {recipient.team}
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -239,9 +262,7 @@ const RegularAwards = ({ cue }: { cue: AwardCue }) => {
   const { name, categories } = festivalAwards[cue.code];
   const category = categories[cue.categoryIndex];
   const groups = groupRecipientsByRank(cue.recipients);
-  const maxRows = Math.max(...groups.map(({ members }) => members.length));
-  const density = Math.min(1, 5 / maxRows);
-  const width = groups.length === 2 ? "65cqw" : "76cqw";
+  const width = Math.min(84, 50 + 24 * (groups.length - 1));
   let offset = 0;
 
   return (
@@ -269,8 +290,8 @@ const RegularAwards = ({ cue }: { cue: AwardCue }) => {
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(${groups.length}, minmax(0, 1fr))`,
-          gap: "2.8cqw",
-          width,
+          gap: "3.8cqw",
+          width: `${width}cqw`,
         }}
       >
         {groups.map(({ rank, members }) => {
@@ -282,7 +303,6 @@ const RegularAwards = ({ cue }: { cue: AwardCue }) => {
               rank={rank}
               members={members}
               offset={start}
-              density={density}
             />
           );
         })}

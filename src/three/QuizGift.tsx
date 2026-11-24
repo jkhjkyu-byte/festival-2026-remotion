@@ -34,6 +34,7 @@ const boxDepth = 2.45;
 const boxBase = -1.13;
 const boxHeight = 2.1;
 const boxTop = boxBase + boxHeight;
+const floorY = boxBase - 0.041;
 const lidThickness = 0.29;
 const ribbonWidth = 0.44;
 const tau = 2 * Math.PI;
@@ -258,19 +259,51 @@ const Lid = () => (
   </group>
 );
 
-const confetti = Array.from({ length: 53 }, (_, index) => {
+const cardCount = 132;
+const curlCount = 39;
+const finishes = ["#FFF0C5", "#F5C871", "#E5AD50", "#C48A38", "#FFE09D"];
+
+const confetti = Array.from({ length: cardCount + curlCount }, (_, index) => {
   const sample = (property: string) => random(`gift:${index}:${property}`);
-  const angle = sample("angle") * tau;
-  const rate = 0.61 + sample("rate") * 2.25;
+  const angle = sample("angle") * (index % 4 === 0 ? tau : Math.PI);
+  const dx = Math.cos(angle);
+  const dz = Math.sin(angle);
+  const edge = Math.min(
+    (boxWidth / 2 + 0.12) / Math.abs(dx),
+    (boxDepth / 2 + 0.11) / Math.abs(dz),
+  );
+  const distance = edge + 0.18 + sample("distance") * 0.99;
+  const openingHeight = boxTop + 0.09 + sample("origin") * 0.15;
+  const elevation = 2.35 + 3.03 * sample("elevation");
+  const gravity = 7.65 + sample("gravity") * 1.35;
+  const restHeight = floorY + 0.027 + sample("floor") * 0.009;
+  // Solve the landing time so arbitrary frame seeks reproduce the same pile.
+  const landing =
+    (elevation +
+      Math.sqrt(elevation ** 2 + 2 * gravity * (openingHeight - restHeight))) /
+    gravity;
+  const twist = sample("twist") * tau;
+  const spin = 4.4 + sample("spin") * 3.3;
+
   return {
     angle,
-    horizontal: Math.cos(angle) * rate,
-    depth: Math.sin(angle) * rate,
-    elevation: 1.9 + 3.2 * sample("elevation"),
-    delay: sample("delay") * 0.13,
-    size: 0.48 + sample("size") * 0.96,
-    twist: sample("twist") * tau,
-    length: 0.95 + sample("length") * 0.7,
+    dx,
+    dz,
+    distance,
+    openingHeight,
+    elevation,
+    gravity,
+    restHeight,
+    landing,
+    twist,
+    spin,
+    restPitch:
+      tau * Math.round((twist + spin * landing + Math.PI / 2) / tau) -
+      Math.PI / 2 +
+      sample("lean") * 0.24,
+    delay: sample("delay") * (index % 3 === 0 ? 0.19 : 0.07),
+    size: 0.65 + sample("size") * 0.9,
+    shade: finishes[Math.floor(sample("finish") * finishes.length)],
   };
 });
 
@@ -278,59 +311,97 @@ const Confetti = ({ time }: { readonly time: number }) => {
   const cards = useRef<InstancedMesh>(null);
   const ribbons = useRef<InstancedMesh>(null);
   const tmp = useMemo(() => new Object3D(), []);
+  const flightEnds = time > 2.48;
+  const pieceTime = flightEnds ? 2.48 : time;
+
+  useLayoutEffect(() => {
+    if (!cards.current || !ribbons.current) return;
+    const color = new Color();
+    for (const [index, piece] of confetti.entries()) {
+      color.set(piece.shade);
+      if (index < cardCount) cards.current.setColorAt(index, color);
+      else ribbons.current.setColorAt(index - cardCount, color);
+    }
+  }, []);
 
   useLayoutEffect(() => {
     if (!cards.current || !ribbons.current) return;
     for (const [index, piece] of confetti.entries()) {
-      const t = Math.max(0, time - piece.delay);
-      const spread = 1 - Math.exp(-2.2 * t);
-      const flying = interpolate(
-        t,
-        [0, 0.12, piece.length - 0.32, piece.length],
-        [0, 1, 0.85, 0],
-        clamp,
+      const t = pieceTime - piece.delay;
+      const flying = Math.max(0, Math.min(t, piece.landing));
+      const after = Math.max(0, t - piece.landing);
+      const progress = flying / piece.landing;
+      const spread = 1 - (1 - progress) ** 3.15;
+      const breeze = Math.sin(progress * Math.PI) * 0.22;
+      const skid = interpolate(after, [0, 0.27], [0, 0.19], glide);
+      const bounce =
+        after < 0.27 ? 0.045 * Math.sin((after / 0.27) * Math.PI) : 0;
+      const turn = Math.sin(flying * 7 + piece.angle);
+      const settling = interpolate(
+        t - piece.landing,
+        [-0.08, 0.22],
+        [0, 1],
+        glide,
       );
-      const size = t > 0 ? piece.size * flying : 0;
-      const y = boxTop + piece.elevation * t - 3.08 * t ** 2;
+      const size = interpolate(t, [0, 0.085], [0, piece.size], glide);
       tmp.position.set(
-        piece.horizontal * spread * 1.24 + 0.1 * Math.sin(t * 7 + piece.angle),
-        y,
-        piece.depth * spread + 0.18 * Math.sin(t * 5 + piece.angle),
+        piece.dx * (piece.distance * spread + skid) + breeze * turn,
+        piece.openingHeight +
+          piece.elevation * flying -
+          0.5 * piece.gravity * flying ** 2 +
+          bounce,
+        piece.dz * (piece.distance * spread + skid) - breeze * turn,
       );
       tmp.rotation.set(
-        piece.twist + t * 5.8,
-        piece.angle + t * 3.9,
-        piece.twist * 0.31 + t * 4.45,
+        interpolate(
+          settling,
+          [0, 1],
+          [piece.twist + flying * piece.spin, piece.restPitch],
+        ),
+        piece.angle + flying * 3.9 + skid,
+        piece.twist * 0.31 + flying * 4.45,
+        "YXZ",
       );
       tmp.scale.set(size, size, size);
       tmp.updateMatrix();
-      if (index < 42) cards.current.setMatrixAt(index, tmp.matrix);
-      else ribbons.current.setMatrixAt(index - 42, tmp.matrix);
+      if (index < cardCount) cards.current.setMatrixAt(index, tmp.matrix);
+      else ribbons.current.setMatrixAt(index - cardCount, tmp.matrix);
     }
     cards.current.instanceMatrix.needsUpdate = true;
     ribbons.current.instanceMatrix.needsUpdate = true;
-  }, [time, tmp]);
+  }, [pieceTime, tmp]);
 
   return (
-    <group visible={time > 0 && time < 1.66}>
+    <group visible={time > 0}>
       <instancedMesh
         ref={cards}
-        args={[undefined, undefined, 42]}
+        args={[undefined, undefined, cardCount]}
         frustumCulled={false}
       >
-        <planeGeometry args={[0.125, 0.062]} />
-        <Gold />
+        <planeGeometry args={[0.144, 0.076]} />
+        <Foil />
       </instancedMesh>
       <instancedMesh
         ref={ribbons}
-        args={[curl, undefined, 11]}
+        args={[curl, undefined, curlCount]}
         frustumCulled={false}
       >
-        <Gold warm />
+        <Foil />
       </instancedMesh>
     </group>
   );
 };
+
+const Foil = () => (
+  <meshPhongMaterial
+    color="#FFD378"
+    specular="#FFF5D7"
+    emissive="#603711"
+    emissiveIntensity={0.35}
+    shininess={67}
+    side={DoubleSide}
+  />
+);
 
 const glowVertex = `
   varying vec2 vUv;
@@ -339,6 +410,45 @@ const glowVertex = `
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   }
 `;
+
+const floorFragment = `
+  varying vec2 vUv;
+  uniform float level;
+  void main() {
+    vec2 p = vUv - vec2(0.5, 0.52);
+    float distanceToPool = length(p * vec2(1.96, 2.17));
+    float pool = pow(max(0.0, 1.0 - distanceToPool), 1.65);
+    float boxShadow = smoothstep(0.11, 0.38, length(p * vec2(2.05, 2.5)));
+    vec3 umber = vec3(0.075, 0.04, 0.027);
+    vec3 bronze = vec3(0.24, 0.138, 0.057);
+    vec3 surface = mix(umber, bronze, boxShadow * level);
+    gl_FragColor = vec4(surface, pool * (0.46 + level * 0.35));
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+  }
+`;
+
+const Floor = ({ light }: { readonly light: number }) => {
+  const shader = useRef<ShaderMaterial>(null);
+  const uniforms = useMemo(() => ({ level: { value: 0.28 } }), []);
+  useLayoutEffect(() => {
+    if (shader.current) shader.current.uniforms.level.value = light;
+  }, [light]);
+
+  return (
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, floorY, 0.67]}>
+      <planeGeometry args={[8.7, 6.3]} />
+      <shaderMaterial
+        ref={shader}
+        uniforms={uniforms}
+        vertexShader={glowVertex}
+        fragmentShader={floorFragment}
+        transparent
+        depthWrite={false}
+      />
+    </mesh>
+  );
+};
 
 const glowFragment = `
   varying vec2 vUv;
@@ -377,7 +487,7 @@ const Aperture = ({ time }: { readonly time: number }) => {
   const flare = interpolate(
     time,
     [0, 0.125, 0.37, 0.95],
-    [0, 1, 0.58, 0],
+    [0, 1.12, 0.66, 0],
     clamp,
   );
   const shine = interpolate(time, [0, 0.3, 1.15], [0, 0.27, 0.15], clamp);
@@ -417,7 +527,7 @@ const Aperture = ({ time }: { readonly time: number }) => {
 const Lens = () => {
   const { camera } = useThree();
   useLayoutEffect(() => {
-    camera.lookAt(0, 1.33, 0);
+    camera.lookAt(0, 0.96, 0);
   }, [camera]);
   return null;
 };
@@ -443,6 +553,12 @@ const GiftScene = () => {
     glide,
   );
   const opening = interpolate(time, [0, 0.47], [0, 0.38], glide);
+  const floorLight = interpolate(
+    time,
+    [0, 0.2, 0.67, 1.35],
+    [0.28, 0.93, 0.79, 0.71],
+    clamp,
+  );
 
   return (
     <>
@@ -461,6 +577,7 @@ const GiftScene = () => {
         intensity={48}
         distance={9}
       />
+      <Floor light={floorLight} />
       <group rotation={[0, -0.13 - before * 0.045 + impact * 0.026, 0]}>
         <group position={[0, -before * 0.045 + impact * 0.065, 0]}>
           <Base />
@@ -490,7 +607,7 @@ export const QuizGift = () => {
         width={surfaceWidth}
         height={surfaceHeight}
         dpr={1}
-        camera={{ fov: 39, position: [3.8, 2.94, 8.7], near: 0.1, far: 34 }}
+        camera={{ fov: 42, position: [3.8, 2.94, 8.7], near: 0.1, far: 34 }}
         gl={{ alpha: true, antialias: true, powerPreference: "low-power" }}
         onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
         style={{

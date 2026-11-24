@@ -333,7 +333,7 @@ const QuizInvitation = () => {
       >
         <span lang="en">QUIZ EVENT</span>
       </Reveal>
-      <Reveal name="시상식 퀴즈 참여" from={0.66} to={1.35}>
+      <Reveal name="전시 포스터 퀴즈 참여" from={0.66} to={1.35}>
         <p
           style={{
             margin: "1.9cqh 0 0",
@@ -343,7 +343,7 @@ const QuizInvitation = () => {
             letterSpacing: "-0.035em",
           }}
         >
-          시상식 현장에서 퀴즈를 풀고
+          전시회에서 전시 포스터와 관련된 퀴즈를 풀고
         </p>
       </Reveal>
       <Reveal name="경품 안내" from={pop + 0.08} to={pop + 0.8}>

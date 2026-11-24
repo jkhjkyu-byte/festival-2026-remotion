@@ -14,16 +14,17 @@ const roster = asModule(
   ),
 );
 const { festivalAwards } = await import(roster);
-const { formatMentorMenteeNames, groupRecipientsByRank } = await import(
-  asModule(
-    stripTypeScriptTypes(
-      readFileSync(
-        new URL("../src/data/award-display.ts", import.meta.url),
-        "utf8",
+const { formatMentorMenteeNames, groupRecipientsByRank, layoutRecipientRows } =
+  await import(
+    asModule(
+      stripTypeScriptTypes(
+        readFileSync(
+          new URL("../src/data/award-display.ts", import.meta.url),
+          "utf8",
+        ),
       ),
-    ),
-  )
-);
+    )
+  );
 const mentors = festivalAwards.CW.categories.find(
   ({ name }) => name === "멘토멘티 협동과제",
 );
@@ -37,6 +38,26 @@ assert.deepEqual(
   ],
 );
 assert.equal(formatMentorMenteeNames(["공동 수상", "수상자"]), null);
+
+const displaySample = festivalAwards.CW.categories
+  .find(({ name }) => name === "BP(개발설계)")
+  .recipients.filter(({ rank }) => rank === "우수");
+for (const [count, widths] of [
+  [2, [2]],
+  [4, [2, 2]],
+  [5, [2, 3]],
+]) {
+  const members = displaySample.slice(0, count);
+  const rows = layoutRecipientRows(members);
+  assert.deepEqual(
+    rows.map(({ members: row }) => row.length),
+    widths,
+  );
+  assert.deepEqual(
+    rows.flatMap(({ members: row }) => row),
+    members,
+  );
+}
 
 const timing = stripTypeScriptTypes(
   readFileSync(
@@ -160,6 +181,15 @@ for (const [code, { frames, categories }] of Object.entries(expected)) {
       );
       for (const { rank, members } of columns) {
         assert.ok(members.every((recipient) => recipient.rank === rank));
+        const rows = layoutRecipientRows(members);
+        assert.deepEqual(
+          rows.flatMap(({ members: row }) => row),
+          members,
+        );
+        for (const { start, members: row } of rows) {
+          assert.ok(row.length >= 1 && row.length <= 3);
+          assert.equal(row[0], members[start]);
+        }
       }
     }
     cursor += cue.frames;

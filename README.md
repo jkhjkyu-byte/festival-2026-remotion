@@ -2,7 +2,19 @@
 
 Remotion과 TypeScript로 제작한 시상식 영상입니다. 최신 본편은 Studio의 `FestivalCinematic`에서 확인할 수 있습니다. 작업 해상도는 3960×1080, 배포본은 1980×540이며, 두 영상 모두 11:3, 30 fps입니다.
 
-## 최신 일정·가독성 수정판
+## 최신 전시 포스터 퀴즈·수상자 배치 수정판
+
+- [4분 54초 본편 MP4](deliverables/poster-quiz-cut/festival-poster-quiz-cut.mp4)
+- [주요 장면 모음](deliverables/poster-quiz-cut/scene-review.jpg) · [검수 결과](docs/reviews/poster-quiz-cut-qa.md)
+
+최우수·우수 등은 각 등급 제목 아래에 수상자를 가로로 배치합니다. 04:42에 시작하는 퀴즈는 전시 포스터를 중심으로 안내하며, 선물상자에서 퍼진 금빛 색종이가 바닥에 내려앉습니다.
+
+```bash
+REMOTION_BROWSER_EXECUTABLE=/usr/bin/chromium npm run render:cinematic -- poster-quiz-cut
+node --disable-warning=ExperimentalWarning scripts/verify-cinematic.mjs out/poster-quiz-cut/festival-poster-quiz-cut.mp4
+```
+
+## 이전 일정·가독성 수정판
 
 - [4분 54초 본편 MP4](deliverables/readability-cut/festival-readability-cut.mp4)
 - [주요 장면 모음](deliverables/readability-cut/scene-review.jpg) · [검수 결과](docs/reviews/readability-cut-qa.md)
