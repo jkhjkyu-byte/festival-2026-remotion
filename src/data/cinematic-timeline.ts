@@ -5,14 +5,15 @@ export type AwardCue = {
   readonly code: InstituteCode;
   readonly categoryIndex: number;
   readonly kind: "regular" | "grand" | "credits";
+  readonly title?: string;
   readonly start: number;
   readonly frames: number;
   readonly recipients: readonly Recipient[];
 };
 
 export const fps = 30;
-export const cardSeconds = 4;
-export const instituteIntroSeconds = 4;
+export const cardSeconds = 6;
+export const instituteIntroSeconds = cardSeconds;
 export const cardFrames = fps * cardSeconds;
 
 const ordinaryRanks = ["최우수", "우수", "장려"];
@@ -27,7 +28,7 @@ const awardPages = (
   category: string,
   kind: "regular" | "grand",
   recipients: readonly Recipient[],
-): readonly (readonly Recipient[])[] => {
+): Pick<AwardCue, "recipients" | "title">[] => {
   const ordered =
     kind === "regular"
       ? [...recipients].sort(
@@ -39,14 +40,14 @@ const awardPages = (
     const people = ordered.filter(({ names }) => names.length > 0);
     const teams = ordered.filter(({ names }) => names.length === 0);
     return [
-      ...(people.length ? [people] : []),
-      ...(teams.length ? [teams] : []),
-    ];
+      { title: "7S 낭비제거 활동 - 개인", recipients: people },
+      { title: "7S 낭비제거 활동 - 단체", recipients: teams },
+    ].filter(({ recipients }) => recipients.length > 0);
   }
 
-  return Array.from({ length: Math.ceil(ordered.length / 8) }, (_, page) =>
-    ordered.slice(page * 8, (page + 1) * 8),
-  );
+  return Array.from({ length: Math.ceil(ordered.length / 8) }, (_, page) => ({
+    recipients: ordered.slice(page * 8, (page + 1) * 8),
+  }));
 };
 
 export const getInstituteAwardCues = (code: InstituteCode): AwardCue[] => {
@@ -73,7 +74,7 @@ export const getInstituteAwardCues = (code: InstituteCode): AwardCue[] => {
             code,
             categoryIndex,
             kind,
-            recipients: page,
+            ...page,
           }),
         );
       });
@@ -88,15 +89,15 @@ export const getInstituteAwardCues = (code: InstituteCode): AwardCue[] => {
 };
 
 export const masterSeconds = [
-  10,
-  12,
+  cardSeconds,
+  cardSeconds,
   instituteIntroSeconds + festivalAwards.CW.categories.length * cardSeconds,
   getInstituteAwardCues("CW").length * cardSeconds,
   instituteIntroSeconds + festivalAwards.MS.categories.length * cardSeconds,
   getInstituteAwardCues("MS").length * cardSeconds,
-  8,
-  10,
-  4,
+  cardSeconds,
+  cardSeconds,
+  cardSeconds,
 ];
 
 let cutFrame = 0;

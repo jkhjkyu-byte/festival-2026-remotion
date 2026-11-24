@@ -14,7 +14,7 @@ const roster = asModule(
   ),
 );
 const { festivalAwards } = await import(roster);
-const { formatMentorMenteeNames } = await import(
+const { formatMentorMenteeNames, groupRecipientsByRank } = await import(
   asModule(
     stripTypeScriptTypes(
       readFileSync(
@@ -31,9 +31,9 @@ assert.ok(mentors);
 assert.deepEqual(
   mentors.recipients.map(({ names }) => formatMentorMenteeNames(names)),
   [
-    "멘토(홍동근)/멘티(김효근)",
-    "멘토(홍성일)/멘티(이동훈, 이준영)",
-    "멘토(박건우, 김기웅, 김덕연)/멘티(홍승표)",
+    "멘토(홍동근) / 멘티(김효근)",
+    "멘토(홍성일) / 멘티(이동훈, 이준영)",
+    "멘토(박건우, 김기웅, 김덕연) / 멘티(홍승표)",
   ],
 );
 assert.equal(formatMentorMenteeNames(["공동 수상", "수상자"]), null);
@@ -49,16 +49,18 @@ const { masterCues, getInstituteAwardCues, durationInFrames, cardFrames } =
 
 assert.deepEqual(
   masterCues.map(({ from }) => from),
-  [0, 300, 660, 1740, 3420, 4500, 5940, 6180, 6480],
+  [0, 180, 360, 1980, 4500, 6120, 8280, 8460, 8640],
 );
-assert.equal(durationInFrames, 6600);
-assert.equal(cardFrames, 120);
+assert.equal(durationInFrames, 8820);
+assert.equal(cardFrames, 180);
 assert.equal(festivalAwards.CW.name, "CW생산본부");
 assert.equal(festivalAwards.MS.name, "미사일시스템생산본부");
 for (const index of [2, 4]) {
-  assert.equal(masterCues[index].durationInFrames, 120 + 8 * cardFrames);
+  assert.equal(masterCues[index].durationInFrames, 9 * cardFrames);
 }
-assert.equal(masterCues[6].durationInFrames, 240);
+for (const index of [0, 1, 6, 7, 8]) {
+  assert.equal(masterCues[index].durationInFrames, cardFrames);
+}
 const rankOrder = ["최우수", "우수", "장려"];
 const orderOf = (rank) =>
   rankOrder.includes(rank) ? rankOrder.indexOf(rank) : rankOrder.length;
@@ -79,6 +81,10 @@ assert.deepEqual(
 assert.ok(seven[0].recipients.every(({ names }) => names.length > 0));
 assert.ok(seven[1].recipients.every(({ names }) => names.length === 0));
 assert.deepEqual(
+  seven.map(({ title }) => title),
+  ["7S 낭비제거 활동 - 개인", "7S 낭비제거 활동 - 단체", undefined],
+);
+assert.deepEqual(
   seven[1].recipients.map(({ rank }) => rank),
   ["지속실천 우수팀", "최다 제출팀", "다각화 제안 우수팀"],
 );
@@ -86,7 +92,7 @@ assert.deepEqual(seven[2].recipients[0].names, ["김태호"]);
 
 const expected = {
   CW: {
-    frames: 1680,
+    frames: 2520,
     categories: [
       ["논문", 6, 1],
       ["특허", 3, 0],
@@ -99,7 +105,7 @@ const expected = {
     ],
   },
   MS: {
-    frames: 1440,
+    frames: 2160,
     categories: [
       ["논문", 3, 1],
       ["특허", 3, 0],
@@ -143,6 +149,18 @@ for (const [code, { frames, categories }] of Object.entries(expected)) {
         order,
         [...order].sort((left, right) => left - right),
       );
+      const columns = groupRecipientsByRank(cue.recipients);
+      assert.equal(
+        columns.length,
+        new Set(cue.recipients.map(({ rank }) => rank)).size,
+      );
+      assert.deepEqual(
+        columns.flatMap(({ members }) => members),
+        cue.recipients,
+      );
+      for (const { rank, members } of columns) {
+        assert.ok(members.every((recipient) => recipient.rank === rank));
+      }
     }
     cursor += cue.frames;
   }
@@ -165,8 +183,16 @@ for (const [code, { frames, categories }] of Object.entries(expected)) {
   assert.equal(cues.at(-1).kind, "credits");
   assert.equal(cursor, frames);
 }
+assert.deepEqual(
+  festivalAwards.MS.categories
+    .find(({ name }) => name === "논문")
+    .recipients.find(({ team, rank }) => team === "3팀" && rank === "최우수")
+    .names,
+  ["김하림", "이준엽"],
+);
+
 console.log(
-  "CW/MS category order and counts, 87 award rows, nine grand-prize cues, 7S groups and ranks, uniform four-second pages, production division labels and mentor/mentee labels passed.",
+  "CW/MS category order and counts, 87 award rows, rank columns, nine grand-prize cues, 7S titles, uniform six-second pages and mentor/mentee labels passed.",
 );
 
 function run(cmd, args) {

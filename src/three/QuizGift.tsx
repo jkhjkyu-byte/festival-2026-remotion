@@ -24,7 +24,7 @@ import {
   type ShaderMaterial,
 } from "three";
 
-export const quizPopFrame = 76;
+export const quizPopFrame = 40;
 
 const surfaceWidth = 748;
 const surfaceHeight = 400;

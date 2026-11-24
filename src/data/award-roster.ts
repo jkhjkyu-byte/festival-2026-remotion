@@ -1,5 +1,5 @@
-// Category order and recipient rows are from default.xlsx.
-// Descriptions are condensed and joint awards share a row.
+// Based on default.xlsx and subsequent ceremony corrections.
+// Joint awards share a row.
 export type Recipient = {
   readonly names: readonly string[];
   readonly team: string;
@@ -153,7 +153,7 @@ export const festivalAwards: Readonly<
       {
         name: "BP(혁신과제)",
         description:
-          "반복 업무 자동화와 절차 개선으로 효율과 생산성을 높인 과제",
+          "혁신 기술 역량을 강화하고, 반복 업무 자동화와 절차 개선 등으로 효율과 생산성을 높인 과제",
         recipients: [
           {
             names: ["최조현"],
@@ -235,7 +235,7 @@ export const festivalAwards: Readonly<
       {
         name: "멘토멘티 협동과제",
         description:
-          "멘토의 노하우를 실무에 적용하고 공동 과제를 해결해 직무 역량을 높인 성과",
+          "멘토의 경험과 노하우를 멘티가 실무에 적용하고, 과제를 해결해 직무 역량을 높인 성과",
         recipients: [
           {
             names: ["멘토:홍동근 /멘티:김효근"],
@@ -332,7 +332,7 @@ export const festivalAwards: Readonly<
             rank: "최우수",
           },
           {
-            names: ["김하림"],
+            names: ["김하림", "이준엽"],
             team: "3팀",
             rank: "최우수",
           },
@@ -447,7 +447,7 @@ export const festivalAwards: Readonly<
       {
         name: "BP(혁신과제)",
         description:
-          "업무 효율과 생산성을 높이고 비용을 줄이는 개선 과제를 발굴·추진한 활동",
+          "업무 효율과 생산성을 높이고 비용을 줄이는 개선 과제를 발굴 추진한 혁신 활동",
         recipients: [
           {
             names: ["송원효"],

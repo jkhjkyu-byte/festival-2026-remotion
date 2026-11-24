@@ -32,11 +32,11 @@ export const Appreciation = () => {
   );
   const imageScale = interpolate(
     seconds,
-    [0, 2, 4.25, 8],
+    [0, 1.5, 3.25, 6],
     [1.29, 1.21, 1.075, 1.035],
     clamped,
   );
-  const drift = interpolate(seconds, [0, 2.4, 8], [-2.3, -0.55, 0.45], clamped);
+  const drift = interpolate(seconds, [0, 1.8, 6], [-2.3, -0.55, 0.45], clamped);
   const fadeAt = (durationInFrames - 1) / fps;
 
   return (
@@ -78,16 +78,21 @@ export const Appreciation = () => {
           gap: "3.1cqh",
           color: "#FFF6E9",
           textShadow: "0 0.25cqh 1.4cqh #110A08",
-          opacity: interpolate(seconds, [7.48, fadeAt], [1, 0.77], clamped),
+          opacity: interpolate(
+            seconds,
+            [fadeAt - 0.5, fadeAt],
+            [1, 0.77],
+            clamped,
+          ),
         }}
       >
         <Interactive.Div
           name="현장의 공로"
           style={{
-            opacity: interpolate(seconds, [1.78, 2.75], [0, 1], easeOut),
+            opacity: interpolate(seconds, [0.7, 1.42], [0, 1], easeOut),
             translate: interpolate(
               seconds,
-              [1.78, 2.75],
+              [0.7, 1.42],
               ["0px 1.6cqh", "0px 0cqh"],
               easeOut,
             ),
@@ -111,13 +116,13 @@ export const Appreciation = () => {
           style={{
             clipPath: `inset(0 0 ${interpolate(
               seconds,
-              [2.87, 3.86],
+              [1.47, 2.17],
               [100, 0],
               easeOut,
             )}% 0)`,
             translate: interpolate(
               seconds,
-              [2.87, 3.86],
+              [1.47, 2.17],
               ["0px 2.4cqh", "0px 0cqh"],
               easeOut,
             ),

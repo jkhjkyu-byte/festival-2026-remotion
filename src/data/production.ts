@@ -61,7 +61,7 @@ export const festivalCopy = {
     },
     CW: {
       name: awardData.CW.institute,
-      date: "2026.12.08(화) 14:00",
+      date: "2026.12.10(목) 14:00",
       place: "L3동 변화마당 회의실",
     },
     MS: {

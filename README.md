@@ -2,7 +2,19 @@
 
 Remotion과 TypeScript로 제작한 시상식 영상입니다. 최신 본편은 Studio의 `FestivalCinematic`에서 확인할 수 있습니다. 작업 해상도는 3960×1080, 배포본은 1980×540이며, 두 영상 모두 11:3, 30 fps입니다.
 
-## 최신 명단·퀴즈 수정판
+## 최신 일정·가독성 수정판
+
+- [4분 54초 본편 MP4](deliverables/readability-cut/festival-readability-cut.mp4)
+- [주요 장면 모음](deliverables/readability-cut/scene-review.jpg) · [검수 결과](docs/reviews/readability-cut-qa.md)
+
+CW·MS의 분야 소개와 시상 화면은 각각 6초입니다. 일반 시상은 등급별로 열을 나누어 중앙에 배치합니다. CW 시상식 일정은 2026.12.10(목) 14:00, L3동 변화마당 회의실입니다. 퀴즈는 04:42에 시작합니다.
+
+```bash
+REMOTION_BROWSER_EXECUTABLE=/usr/bin/chromium npm run render:cinematic -- readability-cut
+node --disable-warning=ExperimentalWarning scripts/verify-cinematic.mjs out/readability-cut/festival-readability-cut.mp4
+```
+
+## 이전 명단·퀴즈 수정판
 
 - [3분 40초 본편 MP4](deliverables/roster-quiz/festival-roster-quiz.mp4)
 - [주요 장면 모음](deliverables/roster-quiz/scene-review.jpg) · [검수 결과](docs/reviews/updated-roster-qa.md)

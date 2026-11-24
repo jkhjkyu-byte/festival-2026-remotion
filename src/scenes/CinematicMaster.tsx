@@ -206,7 +206,7 @@ const scenes = [
     Scene: () => (
       <>
         <OpeningStage />
-        <OpeningTitle from={1.85} />
+        <OpeningTitle from={1.5} />
         <Bed cue="opening" />
       </>
     ),

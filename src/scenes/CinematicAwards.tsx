@@ -8,7 +8,10 @@ import {
   useVideoConfig,
 } from "remotion";
 import { festivalAwards } from "../data/award-roster";
-import { formatMentorMenteeNames } from "../data/award-display";
+import {
+  formatMentorMenteeNames,
+  groupRecipientsByRank,
+} from "../data/award-display";
 import type { AwardCue } from "../data/cinematic-timeline";
 
 type InstituteCode = AwardCue["code"];
@@ -155,108 +158,132 @@ export const CategoryIntroductions = ({ code }: { code: InstituteCode }) => {
   );
 };
 
-const RegularAwards = ({ cue }: { cue: AwardCue }) => {
+const RankColumn = ({
+  rank,
+  members,
+  offset,
+  density,
+}: {
+  readonly rank: string;
+  readonly members: readonly Recipient[];
+  readonly offset: number;
+  readonly density: number;
+}) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+
+  return (
+    <section style={{ minWidth: 0, textAlign: "center" }}>
+      {rank && (
+        <div
+          style={{
+            ...label,
+            color: "#BDD9F3",
+            fontSize: "4.2cqh",
+            letterSpacing: "-0.025em",
+            marginBottom: "2cqh",
+            opacity: settle(frame, fps * 0.078 * offset, fps * 0.27),
+          }}
+        >
+          {rank}
+        </div>
+      )}
+      <div style={{ display: "grid", gap: `${density * 1.3}cqh` }}>
+        {members.map((recipient, index) => {
+          const progress = settle(
+            frame,
+            fps * (0.02 + (offset + index) * 0.078),
+            fps * 0.27,
+          );
+          return (
+            <div
+              key={index}
+              style={{
+                minWidth: 0,
+                opacity: progress,
+                translate: `0px ${1.45 * (1 - progress)}cqh`,
+              }}
+            >
+              <div
+                style={{
+                  ...text,
+                  fontSize: `${density * 5.9}cqh`,
+                  lineHeight: 1.12,
+                }}
+              >
+                {formatMentorMenteeNames(recipient.names) ??
+                  namesFor(recipient)}
+              </div>
+              {recipient.names.length > 0 && (
+                <div
+                  style={{
+                    ...text,
+                    color: "#CCD8E3",
+                    fontWeight: 500,
+                    fontSize: `${density * 3.7}cqh`,
+                    marginTop: "0.32cqh",
+                  }}
+                >
+                  {recipient.team}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+};
+
+const RegularAwards = ({ cue }: { cue: AwardCue }) => {
   const { name, categories } = festivalAwards[cue.code];
   const category = categories[cue.categoryIndex];
-  const single = cue.recipients.length === 1;
-  const columns = cue.recipients.length > 4 ? 2 : 1;
+  const groups = groupRecipientsByRank(cue.recipients);
+  const maxRows = Math.max(...groups.map(({ members }) => members.length));
+  const density = Math.min(1, 5 / maxRows);
+  const width = groups.length === 2 ? "65cqw" : "76cqw";
+  let offset = 0;
 
   return (
     <AbsoluteFill
       style={{
-        background: single ? leftShade : centerShade,
-        padding: single ? "0 43cqw 0 10cqw" : "0 9cqw",
+        background: centerShade,
+        padding: "6cqh 8cqw",
         justifyContent: "center",
+        alignItems: "center",
+        textShadow: "0 0.24cqh 0.9cqh #070B17",
       }}
     >
-      <div
-        style={{
-          marginBottom: single ? "7cqh" : "5cqh",
-          textAlign: single ? "left" : "center",
-        }}
-      >
-        <div style={{ ...label, fontSize: "3.65cqh", marginBottom: "1.25cqh" }}>
+      <div style={{ marginBottom: "4.5cqh", textAlign: "center" }}>
+        <div style={{ ...label, fontSize: "3.65cqh", marginBottom: "1.1cqh" }}>
           {name}
         </div>
         <Interactive.Div
           name="수상 분야명"
-          style={{ ...text, fontSize: single ? "7.25cqh" : "7.85cqh" }}
+          style={{ ...text, fontSize: "7.85cqh" }}
         >
-          {category.name}
+          {cue.title ?? category.name}
         </Interactive.Div>
       </div>
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
-          gridTemplateRows: `repeat(${Math.ceil(cue.recipients.length / columns)}, auto)`,
-          gridAutoFlow: "column",
-          columnGap: "4cqw",
-          rowGap: columns === 2 ? "2.7cqh" : "3.6cqh",
-          width: "100%",
-          maxWidth: single ? undefined : columns === 2 ? "83cqw" : "64cqw",
-          alignSelf: single ? "flex-start" : "center",
+          gridTemplateColumns: `repeat(${groups.length}, minmax(0, 1fr))`,
+          gap: "2.8cqw",
+          width,
         }}
       >
-        {cue.recipients.map((recipient, index) => {
-          const progress = settle(
-            frame,
-            fps * (0.02 + index * 0.078),
-            fps * 0.27,
-          );
+        {groups.map(({ rank, members }) => {
+          const start = offset;
+          offset += members.length;
           return (
-            <div
-              key={`${recipient.rank}:${recipient.team}:${index}`}
-              style={{
-                display: "grid",
-                gridTemplateColumns: single ? "1fr" : "7.6cqw minmax(0, 1fr)",
-                alignItems: "baseline",
-                gap: single ? "1.2cqh" : "0.75cqw",
-                opacity: progress,
-                translate: `0px ${1.45 * (1 - progress)}cqh`,
-                minWidth: 0,
-              }}
-            >
-              <div
-                style={{
-                  ...label,
-                  color: "#C2D6E8",
-                  fontSize: single ? "5.2cqh" : "3.65cqh",
-                  letterSpacing: "-0.035em",
-                  overflowWrap: "anywhere",
-                  wordBreak: "keep-all",
-                }}
-              >
-                {recipient.rank}
-              </div>
-              <div style={{ minWidth: 0 }}>
-                <div
-                  style={{
-                    ...text,
-                    fontSize: single ? "10.1cqh" : "5.25cqh",
-                    lineHeight: 1.12,
-                  }}
-                >
-                  {formatMentorMenteeNames(recipient.names) ??
-                    namesFor(recipient)}
-                </div>
-                {recipient.names.length > 0 ? (
-                  <div
-                    style={{
-                      ...text,
-                      color: "#C1CCD5",
-                      fontWeight: 500,
-                      fontSize: single ? "4.35cqh" : "3.5cqh",
-                      marginTop: "0.65cqh",
-                    }}
-                  >
-                    {recipient.team}
-                  </div>
-                ) : null}
-              </div>
-            </div>
+            <RankColumn
+              key={rank}
+              rank={rank}
+              members={members}
+              offset={start}
+              density={density}
+            />
           );
         })}
       </div>

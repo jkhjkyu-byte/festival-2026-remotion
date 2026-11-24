@@ -20,7 +20,8 @@ assert.equal(
   festivalProductionFormat.height * 11,
 );
 assert.equal(festivalCopy.schedule.poster.date, "2026.12.01(화) ~ 12.03(목)");
-assert.equal(festivalCopy.schedule.CW.date, "2026.12.08(화) 14:00");
+assert.equal(festivalCopy.schedule.CW.date, "2026.12.10(목) 14:00");
+assert.equal(festivalCopy.schedule.CW.place, "L3동 변화마당 회의실");
 assert.equal(festivalCopy.schedule.MS.date, "2026.12.02(수) 14:00");
 
 const expectedCategories = [

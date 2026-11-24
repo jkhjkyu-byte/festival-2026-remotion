@@ -270,7 +270,7 @@ export const ScheduleTitle = () => (
         >
           <ScheduleDetails
             event={festivalCopy.schedule.poster}
-            from={1.0}
+            from={0.67}
             lead
           />
         </div>
@@ -287,7 +287,7 @@ export const ScheduleTitle = () => (
               borderTop: "0.14cqh solid #ABBFD17A",
             }}
           >
-            <ScheduleDetails event={festivalCopy.schedule.CW} from={2.4} />
+            <ScheduleDetails event={festivalCopy.schedule.CW} from={1.0} />
           </div>
           <div
             style={{
@@ -296,7 +296,7 @@ export const ScheduleTitle = () => (
               borderTop: "0.14cqh solid #ABBFD17A",
             }}
           >
-            <ScheduleDetails event={festivalCopy.schedule.MS} from={3.1} />
+            <ScheduleDetails event={festivalCopy.schedule.MS} from={1.33} />
           </div>
         </div>
       </div>
@@ -425,7 +425,7 @@ export const EndingTitle = ({ light = false }: { light?: boolean }) => {
           justifyItems: "center",
           opacity: interpolate(
             frame,
-            [2.73 * fps, durationInFrames - 1],
+            [durationInFrames - 1 - 1.27 * fps, durationInFrames - 1],
             [1, 0],
             easeOut,
           ),
