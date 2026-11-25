@@ -2,7 +2,19 @@
 
 Remotion과 TypeScript로 제작한 시상식 영상입니다. 최신 본편은 Studio의 `FestivalCinematic`에서 확인할 수 있습니다. 작업 해상도는 3960×1080, 배포본은 1980×540이며, 두 영상 모두 11:3, 30 fps입니다.
 
-## 최신 전시 포스터 퀴즈·수상자 배치 수정판
+## 최신 골드 무대·등급별 시상 수정판
+
+- [6분 12초 본편 MP4](deliverables/gala-cut/festival-gala-cut.mp4)
+- [주요 장면 모음](deliverables/gala-cut/scene-review.jpg) · [검수 결과](docs/reviews/gala-cut-qa.md)
+
+본부 소개와 원형 시상 분야 안내 뒤에 각 분야 설명, 대상, 등급별 시상이 이어집니다. 7S의 우수와 혁신 제안 우수인은 한 화면, 이어지는 단체 수상은 한 화면입니다. MS 본부 소개는 03:12, 전시 포스터 퀴즈는 06:00에 시작합니다.
+
+```bash
+REMOTION_BROWSER_EXECUTABLE=/usr/bin/chromium npm run render:cinematic -- gala-cut
+node --disable-warning=ExperimentalWarning scripts/verify-cinematic.mjs out/gala-cut/festival-gala-cut.mp4
+```
+
+## 이전 전시 포스터 퀴즈·수상자 배치 수정판
 
 - [4분 54초 본편 MP4](deliverables/poster-quiz-cut/festival-poster-quiz-cut.mp4)
 - [주요 장면 모음](deliverables/poster-quiz-cut/scene-review.jpg) · [검수 결과](docs/reviews/poster-quiz-cut-qa.md)

@@ -1,15 +1,23 @@
+import { groupRecipientsByRank } from "./award-display";
 import { festivalAwards, type Recipient } from "./award-roster";
 import type { InstituteCode } from "./production";
 
-export type AwardCue = {
+type Page = {
   readonly code: InstituteCode;
   readonly categoryIndex: number;
-  readonly kind: "regular" | "grand" | "credits";
-  readonly title?: string;
   readonly start: number;
   readonly frames: number;
+};
+
+export type AwardCue = Page & {
+  readonly kind: "regular" | "grand" | "credits";
+  readonly title?: string;
+  readonly rank?: string;
   readonly recipients: readonly Recipient[];
 };
+
+export type DescriptionCue = Page & { readonly kind: "description" };
+export type ProgramCue = AwardCue | DescriptionCue;
 
 export const fps = 30;
 export const cardSeconds = 6;
@@ -17,84 +25,108 @@ export const instituteIntroSeconds = cardSeconds;
 export const cardFrames = fps * cardSeconds;
 
 const ordinaryRanks = ["최우수", "우수", "장려"];
-
 const rankPriority = (rank: string) => {
   const index = ordinaryRanks.indexOf(rank);
   return index === -1 ? ordinaryRanks.length : index;
 };
 
+type AwardPage = Pick<AwardCue, "kind" | "rank" | "title" | "recipients">;
+
+const pageSize = 5;
+const pagesFor = (
+  recipients: readonly Recipient[],
+  kind: AwardPage["kind"],
+  rank?: string,
+): AwardPage[] =>
+  Array.from(
+    { length: Math.ceil(recipients.length / pageSize) },
+    (_, page) => ({
+      kind,
+      rank,
+      recipients: recipients.slice(page * pageSize, (page + 1) * pageSize),
+    }),
+  );
+
 const awardPages = (
   code: InstituteCode,
   category: string,
-  kind: "regular" | "grand",
   recipients: readonly Recipient[],
-): Pick<AwardCue, "recipients" | "title">[] => {
-  const ordered =
-    kind === "regular"
-      ? [...recipients].sort(
-          (left, right) => rankPriority(left.rank) - rankPriority(right.rank),
-        )
-      : recipients;
+): AwardPage[] => {
+  if (category === "실시제안 마일리지") {
+    return [{ kind: "credits", recipients }];
+  }
+  const grand = pagesFor(
+    recipients.filter(({ rank }) => rank === "대상"),
+    "grand",
+  );
+  const regular = recipients
+    .filter(({ rank }) => rank !== "대상")
+    .sort((left, right) => rankPriority(left.rank) - rankPriority(right.rank));
 
-  if (code === "CW" && category === "7S 낭비제거활동" && kind === "regular") {
-    const people = ordered.filter(({ names }) => names.length > 0);
-    const teams = ordered.filter(({ names }) => names.length === 0);
+  if (code === "CW" && category === "7S 낭비제거활동") {
+    const personalTitle = "7S 낭비제거 활동 - 개인";
+    const personal = regular.filter(({ names }) => names.length > 0);
+    const teams = regular.filter(({ names }) => names.length === 0);
     return [
-      { title: "7S 낭비제거 활동 - 개인", recipients: people },
-      { title: "7S 낭비제거 활동 - 단체", recipients: teams },
-    ].filter(({ recipients }) => recipients.length > 0);
+      ...grand,
+      ...pagesFor(
+        personal.filter(({ rank }) => rank === "최우수"),
+        "regular",
+        "최우수",
+      ).map((page) => ({ ...page, title: personalTitle })),
+      ...pagesFor(
+        personal.filter(({ rank }) => rank !== "최우수"),
+        "regular",
+      ).map((page) => ({ ...page, title: personalTitle })),
+      ...pagesFor(teams, "regular").map((page) => ({
+        ...page,
+        title: "7S 낭비제거 활동 - 단체",
+      })),
+    ];
   }
 
-  return Array.from({ length: Math.ceil(ordered.length / 8) }, (_, page) => ({
-    recipients: ordered.slice(page * 8, (page + 1) * 8),
-  }));
+  return [
+    ...grand,
+    ...groupRecipientsByRank(regular).flatMap(({ rank, members }) =>
+      pagesFor(members, "regular", rank),
+    ),
+  ];
 };
 
-export const getInstituteAwardCues = (code: InstituteCode): AwardCue[] => {
-  const categories = festivalAwards[code].categories;
-  const kinds = ["regular", "grand"] as const;
-  const items = categories.flatMap<Omit<AwardCue, "start" | "frames">>(
-    (category, categoryIndex) => {
-      if (category.name === "실시제안 마일리지") {
-        return [
-          {
-            code,
-            categoryIndex,
-            kind: "credits" as const,
-            recipients: category.recipients,
-          },
-        ];
-      }
-      return kinds.flatMap((kind) => {
-        const recipients = category.recipients.filter(({ rank }) =>
-          kind === "grand" ? rank === "대상" : rank !== "대상",
-        );
-        return awardPages(code, category.name, kind, recipients).map(
-          (page) => ({
-            code,
-            categoryIndex,
-            kind,
-            ...page,
-          }),
-        );
-      });
-    },
-  );
+type ProgramPage =
+  | Omit<DescriptionCue, "start" | "frames">
+  | Omit<AwardCue, "start" | "frames">;
 
-  return items.map((item, index) => ({
-    ...item,
+export const getInstituteProgramCues = (code: InstituteCode): ProgramCue[] => {
+  const pages = festivalAwards[code].categories.flatMap<ProgramPage>(
+    ({ name, recipients }, categoryIndex) => [
+      { code, categoryIndex, kind: "description" },
+      ...awardPages(code, name, recipients).map((page) => ({
+        code,
+        categoryIndex,
+        ...page,
+      })),
+    ],
+  );
+  return pages.map((page, index) => ({
+    ...page,
     frames: cardFrames,
     start: index * cardFrames,
   }));
 };
 
-export const masterSeconds = [
+export const getInstituteAwardCues = (code: InstituteCode): AwardCue[] =>
+  getInstituteProgramCues(code).filter(
+    (cue): cue is AwardCue => cue.kind !== "description",
+  );
+
+const masterSeconds = [
   cardSeconds,
   cardSeconds,
-  instituteIntroSeconds + festivalAwards.CW.categories.length * cardSeconds,
-  getInstituteAwardCues("CW").length * cardSeconds,
-  instituteIntroSeconds + festivalAwards.MS.categories.length * cardSeconds,
-  getInstituteAwardCues("MS").length * cardSeconds,
+  instituteIntroSeconds + cardSeconds,
+  getInstituteProgramCues("CW").length * cardSeconds,
+  instituteIntroSeconds + cardSeconds,
+  getInstituteProgramCues("MS").length * cardSeconds,
   cardSeconds,
   cardSeconds,
   cardSeconds,

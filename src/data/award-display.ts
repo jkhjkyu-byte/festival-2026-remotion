@@ -16,12 +16,3 @@ export const groupRecipientsByRank = (recipients: readonly Recipient[]) => {
   }
   return Array.from(groups, ([rank, members]) => ({ rank, members }));
 };
-
-export const layoutRecipientRows = (members: readonly Recipient[]) => {
-  const count = Math.ceil(members.length / 3);
-  return Array.from({ length: count }, (_, index) => {
-    const start = Math.floor((index * members.length) / count);
-    const end = Math.floor(((index + 1) * members.length) / count);
-    return { start, members: members.slice(start, end) };
-  });
-};

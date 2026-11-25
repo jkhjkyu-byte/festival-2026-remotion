@@ -14,17 +14,15 @@ const roster = asModule(
   ),
 );
 const { festivalAwards } = await import(roster);
-const { formatMentorMenteeNames, groupRecipientsByRank, layoutRecipientRows } =
-  await import(
-    asModule(
-      stripTypeScriptTypes(
-        readFileSync(
-          new URL("../src/data/award-display.ts", import.meta.url),
-          "utf8",
-        ),
-      ),
-    )
-  );
+const display = asModule(
+  stripTypeScriptTypes(
+    readFileSync(
+      new URL("../src/data/award-display.ts", import.meta.url),
+      "utf8",
+    ),
+  ),
+);
+const { formatMentorMenteeNames } = await import(display);
 const mentors = festivalAwards.CW.categories.find(
   ({ name }) => name === "멘토멘티 협동과제",
 );
@@ -39,52 +37,37 @@ assert.deepEqual(
 );
 assert.equal(formatMentorMenteeNames(["공동 수상", "수상자"]), null);
 
-const displaySample = festivalAwards.CW.categories
-  .find(({ name }) => name === "BP(개발설계)")
-  .recipients.filter(({ rank }) => rank === "우수");
-for (const [count, widths] of [
-  [2, [2]],
-  [4, [2, 2]],
-  [5, [2, 3]],
-]) {
-  const members = displaySample.slice(0, count);
-  const rows = layoutRecipientRows(members);
-  assert.deepEqual(
-    rows.map(({ members: row }) => row.length),
-    widths,
-  );
-  assert.deepEqual(
-    rows.flatMap(({ members: row }) => row),
-    members,
-  );
-}
-
 const timing = stripTypeScriptTypes(
   readFileSync(
     new URL("../src/data/cinematic-timeline.ts", import.meta.url),
     "utf8",
   ),
-).replace('"./award-roster"', JSON.stringify(roster));
-const { masterCues, getInstituteAwardCues, durationInFrames, cardFrames } =
-  await import(asModule(timing));
+)
+  .replace('"./award-roster"', JSON.stringify(roster))
+  .replace('"./award-display"', JSON.stringify(display));
+const {
+  masterCues,
+  getInstituteAwardCues,
+  getInstituteProgramCues,
+  durationInFrames,
+  cardFrames,
+} = await import(asModule(timing));
 
 assert.deepEqual(
   masterCues.map(({ from }) => from),
-  [0, 180, 360, 1980, 4500, 6120, 8280, 8460, 8640],
+  [0, 180, 360, 720, 5760, 6120, 10620, 10800, 10980],
 );
-assert.equal(durationInFrames, 8820);
+assert.equal(durationInFrames, 11160);
 assert.equal(cardFrames, 180);
 assert.equal(festivalAwards.CW.name, "CW생산본부");
 assert.equal(festivalAwards.MS.name, "미사일시스템생산본부");
 for (const index of [2, 4]) {
-  assert.equal(masterCues[index].durationInFrames, 9 * cardFrames);
+  assert.equal(masterCues[index].durationInFrames, 2 * cardFrames);
 }
 for (const index of [0, 1, 6, 7, 8]) {
   assert.equal(masterCues[index].durationInFrames, cardFrames);
 }
 const rankOrder = ["최우수", "우수", "장려"];
-const orderOf = (rank) =>
-  rankOrder.includes(rank) ? rankOrder.indexOf(rank) : rankOrder.length;
 const sevenIndex = festivalAwards.CW.categories.findIndex(
   ({ name }) => name === "7S 낭비제거활동",
 );
@@ -92,28 +75,36 @@ const seven = getInstituteAwardCues("CW").filter(
   ({ categoryIndex }) => categoryIndex === sevenIndex,
 );
 assert.deepEqual(
-  seven.map(({ kind, recipients }) => [kind, recipients.length]),
+  seven.map(({ kind, rank, recipients }) => [kind, rank, recipients.length]),
   [
-    ["regular", 6],
-    ["regular", 3],
-    ["grand", 1],
+    ["grand", undefined, 1],
+    ["regular", "최우수", 3],
+    ["regular", undefined, 3],
+    ["regular", undefined, 3],
   ],
 );
-assert.ok(seven[0].recipients.every(({ names }) => names.length > 0));
-assert.ok(seven[1].recipients.every(({ names }) => names.length === 0));
+assert.deepEqual(seven[0].recipients[0].names, ["김태호"]);
+assert.deepEqual(
+  seven[2].recipients.map(({ rank }) => rank),
+  ["우수", "우수", "혁신 제안 우수인"],
+);
 assert.deepEqual(
   seven.map(({ title }) => title),
-  ["7S 낭비제거 활동 - 개인", "7S 낭비제거 활동 - 단체", undefined],
+  [
+    undefined,
+    "7S 낭비제거 활동 - 개인",
+    "7S 낭비제거 활동 - 개인",
+    "7S 낭비제거 활동 - 단체",
+  ],
 );
 assert.deepEqual(
-  seven[1].recipients.map(({ rank }) => rank),
+  seven[3].recipients.map(({ rank }) => rank),
   ["지속실천 우수팀", "최다 제출팀", "다각화 제안 우수팀"],
 );
-assert.deepEqual(seven[2].recipients[0].names, ["김태호"]);
 
 const expected = {
   CW: {
-    frames: 2520,
+    frames: 5040,
     categories: [
       ["논문", 6, 1],
       ["특허", 3, 0],
@@ -126,7 +117,7 @@ const expected = {
     ],
   },
   MS: {
-    frames: 2160,
+    frames: 4500,
     categories: [
       ["논문", 3, 1],
       ["특허", 3, 0],
@@ -150,10 +141,36 @@ for (const [code, { frames, categories }] of Object.entries(expected)) {
   );
   const count = categories.reduce((sum, [, size]) => sum + size, 0);
   const cues = getInstituteAwardCues(code);
+  const program = getInstituteProgramCues(code);
   let cursor = 0;
-  for (const cue of cues) {
+  for (const cue of program) {
     assert.equal(cue.start, cursor);
     assert.equal(cue.frames, cardFrames);
+    cursor += cue.frames;
+  }
+  for (const [index, [, , grand]] of categories.entries()) {
+    const pages = program.filter(
+      ({ categoryIndex }) => categoryIndex === index,
+    );
+    assert.equal(pages[0].kind, "description");
+    if (grand) assert.equal(pages[1].kind, "grand");
+    const ordinary = pages.filter(({ kind }) => kind === "regular");
+    const special = code === "CW" && index === sevenIndex;
+    for (const cue of ordinary) {
+      assert.ok(cue.recipients.length <= 5);
+      assert.ok(cue.recipients.every((item) => item.rank !== "대상"));
+      if (!special)
+        assert.ok(cue.recipients.every(({ rank }) => rank === cue.rank));
+    }
+    if (!special) {
+      const priorities = ordinary.map(({ rank }) => rankOrder.indexOf(rank));
+      assert.deepEqual(
+        priorities,
+        [...priorities].sort((a, b) => a - b),
+      );
+    }
+  }
+  for (const cue of cues) {
     assert.ok(
       cue.recipients.every((entry) =>
         festivalAwards[code].categories[cue.categoryIndex].recipients.includes(
@@ -161,38 +178,6 @@ for (const [code, { frames, categories }] of Object.entries(expected)) {
         ),
       ),
     );
-    if (cue.kind === "grand")
-      assert.ok(cue.recipients.every(({ rank }) => rank === "대상"));
-    if (cue.kind === "regular") {
-      assert.ok(cue.recipients.every(({ rank }) => rank !== "대상"));
-      const order = cue.recipients.map(({ rank }) => orderOf(rank));
-      assert.deepEqual(
-        order,
-        [...order].sort((left, right) => left - right),
-      );
-      const columns = groupRecipientsByRank(cue.recipients);
-      assert.equal(
-        columns.length,
-        new Set(cue.recipients.map(({ rank }) => rank)).size,
-      );
-      assert.deepEqual(
-        columns.flatMap(({ members }) => members),
-        cue.recipients,
-      );
-      for (const { rank, members } of columns) {
-        assert.ok(members.every((recipient) => recipient.rank === rank));
-        const rows = layoutRecipientRows(members);
-        assert.deepEqual(
-          rows.flatMap(({ members: row }) => row),
-          members,
-        );
-        for (const { start, members: row } of rows) {
-          assert.ok(row.length >= 1 && row.length <= 3);
-          assert.equal(row[0], members[start]);
-        }
-      }
-    }
-    cursor += cue.frames;
   }
   assert.equal(
     cues
@@ -222,7 +207,7 @@ assert.deepEqual(
 );
 
 console.log(
-  "CW/MS category order and counts, 87 award rows, rank columns, nine grand-prize cues, 7S titles, uniform six-second pages and mentor/mentee labels passed.",
+  "CW/MS category order and counts, 87 award rows, separate rank pages, nine grand-prize cues, 7S groupings, uniform six-second pages and mentor/mentee labels passed.",
 );
 
 function run(cmd, args) {

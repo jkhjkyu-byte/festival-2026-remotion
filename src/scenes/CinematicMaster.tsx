@@ -15,11 +15,18 @@ import {
   getInstituteAwardCues,
   instituteIntroSeconds,
   masterCues,
+  getInstituteProgramCues,
   type AwardCue,
 } from "../data/cinematic-timeline";
 import { CeremonySpace, type CeremonySpaceProps } from "../three/CeremonySpace";
-import { CategoryHonors, CategoryIntroductions } from "./CinematicAwards";
-import { InstituteBroll } from "./InstituteBroll";
+import {
+  CategoryDescription,
+  CategoryHonors,
+  CategoryOverview,
+} from "./CinematicAwards";
+import { GalaInstituteBroll } from "./GalaInstituteBroll";
+import { GalaBackdrop } from "./GalaBackdrop";
+import { festivalAwards } from "../data/award-roster";
 import { CeremonyPhotography } from "./CeremonyPhotography";
 import { HonorProcession } from "./HonorProcession";
 import { Appreciation } from "./Appreciation";
@@ -116,8 +123,8 @@ const Bed = ({ cue, gain = 0.76 }: { cue: string; gain?: number }) => {
 
 const PrizeReveal = () => (
   <>
-    <CeremonyPhotography shot="trophy" warm />
-    <HonorProcession image="assets/ceremony-cut/trophy.jpg" />
+    <GalaBackdrop variant="grand" />
+    <HonorProcession image="assets/gala-cut/trophy.jpg" />
     <Audio
       src={staticFile("assets/awards-order/prize-chime.wav")}
       volume={0.57}
@@ -146,57 +153,65 @@ const InstituteCategories = ({ code }: Pick<AwardCue, "code">) => {
   const intro = instituteIntroSeconds * fps;
   return (
     <>
-      <Sequence
-        name="연구소 기술 영상"
-        durationInFrames={intro}
-        premountFor={0}
-      >
-        <InstituteBroll code={code} />
+      <Sequence name="본부 기술 영상" durationInFrames={intro} premountFor={0}>
+        <GalaInstituteBroll code={code} />
       </Sequence>
       <Sequence
-        name="시상 분야 설명"
+        name="시상 분야 원형 안내"
         from={intro}
         durationInFrames={durationInFrames - intro}
         premountFor={0}
       >
-        <CeremonyPhotography shot="hall" mirror={code === "MS"} holdAt={40} />
-        <CategoryIntroductions code={code} />
+        <GalaBackdrop variant="category" />
+        <CategoryOverview code={code} />
       </Sequence>
       <Bed cue="technology" />
     </>
   );
 };
 
-const RegularStage = ({ cue }: { cue: AwardCue }) => {
-  const frame = useCurrentFrame();
-  if (cue.kind === "credits")
-    return <CeremonyPhotography shot="hall" holdAt={1} />;
-  const profile = cue.code === "CW" ? "cw" : "ms";
-  const detail = (cue.categoryIndex + (cue.code === "MS" ? 1 : 0)) % 3;
-  if (detail !== 1)
-    return <CeremonyPhotography shot="hall" mirror={detail === 2} />;
-  return (
-    <Freeze frame={29} active={frame >= 29}>
-      <StagePlate mode={profile} zoom={1.23} x={cue.code === "CW" ? 6 : -6} />
-    </Freeze>
-  );
-};
-
 const Awards = ({ code }: Pick<AwardCue, "code">) => (
   <>
     <Bed cue="honors" gain={0.53} />
-    {getInstituteAwardCues(code).map((cue) => (
-      <Sequence
-        key={cue.start}
-        from={cue.start}
-        durationInFrames={cue.frames}
-        premountFor={0}
-        name={`${cue.kind === "credits" ? "마일리지 명단" : cue.kind} · ${cue.categoryIndex + 1}`}
-      >
-        {cue.kind === "grand" ? <PrizeReveal /> : <RegularStage cue={cue} />}
-        <CategoryHonors cue={cue} />
-      </Sequence>
-    ))}
+    {getInstituteProgramCues(code).map((cue) => {
+      const { name } = festivalAwards[code].categories[cue.categoryIndex];
+      const isMileage = name === "실시제안 마일리지";
+      return (
+        <Sequence
+          key={cue.start}
+          from={cue.start}
+          durationInFrames={cue.frames}
+          premountFor={0}
+          name={
+            cue.kind === "description"
+              ? `${name} 설명`
+              : (cue.title ??
+                `${name} ${cue.rank ?? (cue.kind === "grand" ? "대상" : "")}`.trim())
+          }
+        >
+          {cue.kind === "grand" ? (
+            <PrizeReveal />
+          ) : isMileage ? (
+            <Freeze frame={40} active={cue.kind === "description"}>
+              <CeremonyPhotography
+                shot="hall"
+                mirror={cue.kind === "description" && code === "MS"}
+                holdAt={cue.kind === "description" ? 40 : 1}
+              />
+            </Freeze>
+          ) : (
+            <GalaBackdrop
+              variant={cue.kind === "description" ? "category" : "awards"}
+            />
+          )}
+          {cue.kind === "description" ? (
+            <CategoryDescription cue={cue} />
+          ) : (
+            <CategoryHonors cue={cue} />
+          )}
+        </Sequence>
+      );
+    })}
   </>
 );
 
@@ -215,7 +230,7 @@ const scenes = [
     name: "일정 소개",
     Scene: () => (
       <>
-        <StagePlate mode="schedule" zoom={1.24} x={-5} y={3} />
+        <GalaBackdrop variant="schedule" />
         <ScheduleTitle />
         <Bed cue="technology" />
       </>

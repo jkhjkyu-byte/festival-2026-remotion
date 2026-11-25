@@ -8,12 +8,8 @@ import {
   useVideoConfig,
 } from "remotion";
 import { festivalAwards } from "../data/award-roster";
-import {
-  formatMentorMenteeNames,
-  groupRecipientsByRank,
-  layoutRecipientRows,
-} from "../data/award-display";
-import type { AwardCue } from "../data/cinematic-timeline";
+import { formatMentorMenteeNames } from "../data/award-display";
+import type { AwardCue, DescriptionCue } from "../data/cinematic-timeline";
 
 type InstituteCode = AwardCue["code"];
 type Recipient = AwardCue["recipients"][number];
@@ -54,22 +50,15 @@ const settle = (frame: number, start: number, length: number) =>
 const namesFor = (recipient: Recipient) =>
   recipient.names.length > 0 ? recipient.names.join(" · ") : recipient.team;
 
-export const CategoryIntroductions = ({ code }: { code: InstituteCode }) => {
-  const frame = useCurrentFrame();
-  const { durationInFrames, fps } = useVideoConfig();
+export const CategoryDescription = ({ cue }: { cue: DescriptionCue }) => {
+  const phase = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const { code, categoryIndex: index } = cue;
   const { name, categories } = festivalAwards[code];
-  const index = Math.max(
-    0,
-    Math.min(
-      categories.length - 1,
-      Math.floor((frame * categories.length) / durationInFrames),
-    ),
-  );
-  const phase =
-    frame - Math.ceil((index * durationInFrames) / categories.length);
   const category = categories[index];
+  const mileage = category.name === "실시제안 마일리지";
   const alignRight =
-    (Math.floor(index / 2) + (code === "MS" ? 1 : 0)) % 2 === 1;
+    mileage && (Math.floor(index / 2) + (code === "MS" ? 1 : 0)) % 2 === 1;
 
   return (
     <AbsoluteFill
@@ -159,151 +148,188 @@ export const CategoryIntroductions = ({ code }: { code: InstituteCode }) => {
   );
 };
 
-const RankColumn = ({
-  rank,
-  members,
-  offset,
-}: {
-  readonly rank: string;
-  readonly members: readonly Recipient[];
-  readonly offset: number;
-}) => {
+export const CategoryOverview = ({ code }: { code: InstituteCode }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
+  const { name, categories } = festivalAwards[code];
+  const entered = settle(frame, 0, fps * 0.42);
 
   return (
-    <section style={{ minWidth: 0, textAlign: "center" }}>
-      {rank && (
-        <div
-          style={{
-            ...label,
-            color: "#BDD9F3",
-            fontSize: "4.2cqh",
-            letterSpacing: "-0.025em",
-            marginBottom: "2cqh",
-            opacity: settle(frame, fps * 0.078 * offset, fps * 0.27),
-          }}
-        >
-          {rank}
-        </div>
-      )}
-      <div style={{ display: "grid", gap: "3.1cqh" }}>
-        {layoutRecipientRows(members).map(({ start, members: row }) => (
-          <div
-            key={start}
+    <AbsoluteFill style={{ background: centerShade, textAlign: "center" }}>
+      <Interactive.Div
+        name="시상 분야 안내 제목"
+        style={{
+          ...text,
+          position: "absolute",
+          top: "7cqh",
+          left: "9cqw",
+          right: "9cqw",
+          fontSize: "7.9cqh",
+          opacity: entered,
+          textShadow: "0 0.3cqh 1.5cqh #090602",
+        }}
+      >
+        {name} 시상 분야
+      </Interactive.Div>
+      <div
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          inset: "auto",
+          top: "61cqh",
+          left: "50cqw",
+          translate: "-50% -50%",
+          width: "49cqh",
+          height: "49cqh",
+          borderRadius: "50%",
+          border: "0.2cqh solid #EFD3A27C",
+          boxShadow: "0 0 4cqh #EFBC5B2C, inset 0 0 2cqh #F1CC7B35",
+          background: "radial-gradient(circle, #B1834127 0%, transparent 72%)",
+          opacity: entered,
+        }}
+      />
+      {categories.map(({ name: title }, index) => {
+        const angle = (index / categories.length) * 2 * Math.PI - Math.PI / 2;
+        const opacity = settle(frame, fps * (0.13 + index * 0.043), fps * 0.38);
+        return (
+          <Interactive.Div
+            key={title}
+            name={title}
             style={{
-              display: "grid",
-              gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
-              gap: "1.2cqw",
+              ...text,
+              color: "#FFF2D7",
+              position: "absolute",
+              left: `calc(50% + ${Math.cos(angle) * 58}cqh)`,
+              top: `${61 + Math.sin(angle) * 27}cqh`,
+              translate: "-50% -50%",
+              maxWidth: "19cqw",
+              padding: "0.65cqh 1.15cqw",
+              fontSize: "4.5cqh",
+              lineHeight: 1.18,
+              background: "#17110CDA",
+              border: "0.15cqh solid #F1D6A562",
+              borderRadius: "5cqh",
+              opacity,
+              textShadow: "0 0.19cqh 0.8cqh #080502",
             }}
           >
-            {row.map((recipient, index) => {
-              const progress = settle(
-                frame,
-                fps * (0.02 + (offset + start + index) * 0.078),
-                fps * 0.27,
-              );
-              const roles = formatMentorMenteeNames(recipient.names)?.split(
-                " / ",
-              );
-              return (
-                <div
-                  key={index}
-                  style={{
-                    minWidth: 0,
-                    opacity: progress,
-                    translate: `0px ${1.45 * (1 - progress)}cqh`,
-                  }}
-                >
-                  <div
-                    style={{
-                      ...text,
-                      fontSize: roles ? "4.85cqh" : "5.9cqh",
-                      lineHeight: 1.12,
-                    }}
-                  >
-                    {roles ? (
-                      <>
-                        <span style={{ display: "inline-block" }}>
-                          {roles[0]} /
-                        </span>{" "}
-                        <span style={{ display: "inline-block" }}>
-                          {roles[1]}
-                        </span>
-                      </>
-                    ) : (
-                      namesFor(recipient)
-                    )}
-                  </div>
-                  {recipient.names.length > 0 && (
-                    <div
-                      style={{
-                        ...text,
-                        color: "#CCD8E3",
-                        fontWeight: 500,
-                        fontSize: "3.7cqh",
-                        marginTop: "0.45cqh",
-                      }}
-                    >
-                      {recipient.team}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ))}
-      </div>
-    </section>
+            {title}
+          </Interactive.Div>
+        );
+      })}
+    </AbsoluteFill>
   );
 };
 
 const RegularAwards = ({ cue }: { cue: AwardCue }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
   const { name, categories } = festivalAwards[cue.code];
   const category = categories[cue.categoryIndex];
-  const groups = groupRecipientsByRank(cue.recipients);
-  const width = Math.min(84, 50 + 24 * (groups.length - 1));
-  let offset = 0;
+  const count = cue.recipients.length;
+  const rowWidth = Math.min(84, 44 + count * 9);
 
   return (
     <AbsoluteFill
       style={{
         background: centerShade,
-        padding: "6cqh 8cqw",
+        padding: "7cqh 8cqw",
         justifyContent: "center",
         alignItems: "center",
-        textShadow: "0 0.24cqh 0.9cqh #070B17",
+        textShadow: "0 0.3cqh 1.1cqh #100A06",
       }}
     >
-      <div style={{ marginBottom: "4.5cqh", textAlign: "center" }}>
-        <div style={{ ...label, fontSize: "3.65cqh", marginBottom: "1.1cqh" }}>
+      <div style={{ marginBottom: "7cqh", textAlign: "center" }}>
+        <div
+          style={{
+            ...label,
+            fontSize: "3.9cqh",
+            marginBottom: "1.2cqh",
+            color: "#DED3BE",
+          }}
+        >
           {name}
         </div>
         <Interactive.Div
           name="수상 분야명"
-          style={{ ...text, fontSize: "7.85cqh" }}
+          style={{ ...text, fontSize: "8.35cqh" }}
         >
           {cue.title ?? category.name}
         </Interactive.Div>
+        {cue.rank && (
+          <div
+            style={{
+              ...label,
+              color: champagne,
+              fontSize: "5.8cqh",
+              marginTop: "4.2cqh",
+            }}
+          >
+            {cue.rank}
+          </div>
+        )}
       </div>
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: `repeat(${groups.length}, minmax(0, 1fr))`,
-          gap: "3.8cqw",
-          width: `${width}cqw`,
+          alignItems: "start",
+          gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))`,
+          gap: "1.8cqw",
+          width: `${rowWidth}cqw`,
+          textAlign: "center",
         }}
       >
-        {groups.map(({ rank, members }) => {
-          const start = offset;
-          offset += members.length;
+        {cue.recipients.map((recipient, index) => {
+          const progress = settle(
+            frame,
+            fps * (0.02 + index * 0.078),
+            fps * 0.27,
+          );
+          const mentor = formatMentorMenteeNames(recipient.names);
           return (
-            <RankColumn
-              key={rank}
-              rank={rank}
-              members={members}
-              offset={start}
-            />
+            <div
+              key={index}
+              style={{
+                minWidth: 0,
+                opacity: progress,
+                translate: `0px ${1.45 * (1 - progress)}cqh`,
+              }}
+            >
+              {!cue.rank && recipient.rank && (
+                <div
+                  style={{
+                    ...label,
+                    color: champagne,
+                    fontSize: "4.15cqh",
+                    marginBottom: "1.55cqh",
+                  }}
+                >
+                  {recipient.rank}
+                </div>
+              )}
+              <div
+                style={{
+                  ...text,
+                  fontSize: mentor ? "5.05cqh" : "6.55cqh",
+                  lineHeight: 1.12,
+                }}
+              >
+                {mentor ?? namesFor(recipient)}
+              </div>
+              {recipient.names.length > 0 && (
+                <div
+                  style={{
+                    ...text,
+                    color: "#DED3BE",
+                    fontWeight: 500,
+                    fontSize: "4.0cqh",
+                    marginTop: "1.15cqh",
+                  }}
+                >
+                  {recipient.team}
+                </div>
+              )}
+            </div>
           );
         })}
       </div>
@@ -326,7 +352,7 @@ const GrandHonors = ({ cue }: { cue: AwardCue }) => {
         justifyContent: "center",
         alignItems: "center",
         textAlign: "center",
-        padding: "10cqh 8cqw",
+        padding: "10cqh 29cqw 10cqh 8cqw",
         background:
           "radial-gradient(ellipse at 50% 54%, #130D06D9 0%, #130D0690 47%, transparent 78%)",
       }}

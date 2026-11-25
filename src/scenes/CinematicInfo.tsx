@@ -226,7 +226,7 @@ export const ScheduleTitle = () => (
   <AbsoluteFill
     style={{
       background:
-        "linear-gradient(90deg, #080B13C4 4%, #080B1380 41%, #080B138C 71%, #080B1326 100%)",
+        "linear-gradient(90deg, #0B0805BC 4%, #0B08056E 41%, #0B080578 71%, #0B08051F 100%)",
     }}
   >
     <div
@@ -287,7 +287,7 @@ export const ScheduleTitle = () => (
               borderTop: "0.14cqh solid #ABBFD17A",
             }}
           >
-            <ScheduleDetails event={festivalCopy.schedule.CW} from={1.0} />
+            <ScheduleDetails event={festivalCopy.schedule.MS} from={1.0} />
           </div>
           <div
             style={{
@@ -296,7 +296,7 @@ export const ScheduleTitle = () => (
               borderTop: "0.14cqh solid #ABBFD17A",
             }}
           >
-            <ScheduleDetails event={festivalCopy.schedule.MS} from={1.33} />
+            <ScheduleDetails event={festivalCopy.schedule.CW} from={1.33} />
           </div>
         </div>
       </div>
