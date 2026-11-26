@@ -33,7 +33,7 @@ case "${1:-master}" in
         --gl=swangle --concurrency="${FESTIVAL_CONCURRENCY:-2}" --crf=18 --audio-codec=aac
     done
     ;;
-  master|reference|ceremony|awards-order|roster-quiz|readability-cut|poster-quiz-cut|gala-cut|gala-motion)
+  master|reference|ceremony|awards-order|roster-quiz|readability-cut|poster-quiz-cut|gala-cut|gala-motion|gala-spacing)
     output="out/redesign/festival-cinematic.mp4"
     if [[ "${1:-master}" == reference ]]; then
       output="out/reference-cut/festival-reference-cut.mp4"
@@ -51,6 +51,8 @@ case "${1:-master}" in
       output="out/gala-cut/festival-gala-cut.mp4"
     elif [[ "${1:-master}" == gala-motion ]]; then
       output="out/gala-motion/festival-gala-motion.mp4"
+    elif [[ "${1:-master}" == gala-spacing ]]; then
+      output="out/gala-spacing/festival-gala-spacing.mp4"
     fi
     mkdir -p "$(dirname "$output")"
     width=${FESTIVAL_WIDTH:-1980}
@@ -68,7 +70,7 @@ case "${1:-master}" in
     mv -- "$tmp_dir/output.mp4" "$output"
     ;;
   *)
-    printf '%s\n' 'Usage: bash scripts/render-cinematic.sh [proofs|plates|master|reference|ceremony|awards-order|roster-quiz|readability-cut|poster-quiz-cut|gala-cut|gala-motion]' >&2
+    printf '%s\n' 'Usage: bash scripts/render-cinematic.sh [proofs|plates|master|reference|ceremony|awards-order|roster-quiz|readability-cut|poster-quiz-cut|gala-cut|gala-motion|gala-spacing]' >&2
     exit 2
     ;;
 esac

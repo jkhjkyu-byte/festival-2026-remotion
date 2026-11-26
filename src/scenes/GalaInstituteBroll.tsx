@@ -9,7 +9,6 @@ import {
   useVideoConfig,
 } from "remotion";
 import { festivalAwards } from "../data/award-roster";
-import { GalaLaunchMotion } from "./GalaLaunchMotion";
 
 type Code = "CW" | "MS";
 
@@ -52,11 +51,11 @@ const profiles = {
     flare: "#DAECFF",
     shots: [
       {
-        file: "gala-motion/launch-sea.jpg",
+        file: "gala-cut/launch.jpg",
         focal: "74% 55%",
-        from: 1.008,
-        to: 1.024,
-        pan: -0.32,
+        from: 1.031,
+        to: 1.102,
+        pan: -1.6,
         grade: "saturate(.91) contrast(1.055)",
       },
       {
@@ -136,7 +135,6 @@ export const GalaInstituteBroll = ({ code }: { readonly code: Code }) => {
         progress={interpolate(frame, [0, cut + cross], [0, 1], limits)}
         opacity={1}
       />
-      {code === "MS" && mix < 1 ? <GalaLaunchMotion /> : null}
       <FilmPlate
         shot={second}
         progress={interpolate(

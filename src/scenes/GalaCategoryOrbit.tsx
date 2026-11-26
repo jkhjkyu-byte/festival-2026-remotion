@@ -42,12 +42,25 @@ const splitNames: Readonly<Record<string, readonly string[]>> = {
 const viewWidth = 1980;
 const viewHeight = 540;
 const orbitX = 990;
-const orbitY = 287;
-const orbitRadiusX = 425;
-const orbitRadiusY = 152;
+const orbitY = 309;
+const orbitRadiusX = 367;
+const orbitRadiusY = 135;
 const hexOuter = "-105,0 -55,-86 55,-86 105,0 55,86 -55,86";
 const hexDarkBevel = "-100,0 -53,-82 53,-82 100,0 53,82 -53,82";
 const hexFace = "-95,0 -50,-78 50,-78 95,0 50,78 -50,78";
+
+// Position the diagonals by the beveled edges so the gaps match on a wide orbit.
+const diagonal = Math.acos(209 / orbitRadiusX);
+const eightCardAngles = [
+  -Math.PI / 2,
+  -diagonal,
+  0,
+  diagonal,
+  Math.PI / 2,
+  Math.PI - diagonal,
+  Math.PI,
+  Math.PI + diagonal,
+];
 
 const font = "'Noto Sans CJK KR', 'Noto Sans KR', Arial, sans-serif";
 
@@ -174,7 +187,10 @@ export const GalaCategoryOrbit = ({ code }: { code: "CW" | "MS" }) => {
         </g>
 
         {categories.map(({ name: award }, index) => {
-          const angle = (index * Math.PI * 2) / categories.length - Math.PI / 2;
+          const angle =
+            categories.length === eightCardAngles.length
+              ? eightCardAngles[index]
+              : (index * Math.PI * 2) / categories.length - Math.PI / 2;
           const x = orbitX + orbitRadiusX * Math.cos(angle);
           const y = orbitY + orbitRadiusY * Math.sin(angle);
           const progress = interpolate(

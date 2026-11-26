@@ -2,7 +2,19 @@
 
 Remotion과 TypeScript로 제작한 시상식 영상입니다. 최신 본편은 Studio의 `FestivalCinematic`에서 확인할 수 있습니다. 작업 해상도는 3960×1080, 배포본은 1980×540이며, 두 영상 모두 11:3, 30 fps입니다.
 
-## 최신 육각형 분야 안내·MS 발사 모션 수정판
+## 최신 시상 분야 간격·MS 소개 수정판
+
+- [6분 12초 본편 MP4](deliverables/gala-spacing/festival-gala-spacing.mp4)
+- [주요 장면 모음](deliverables/gala-spacing/scene-review.jpg) · [검수 결과](docs/reviews/gala-spacing-qa.md)
+
+육각형 카드 사이의 간격을 고르게 맞추고 제목 아래에 여백을 더했습니다. 03:12의 MS 소개는 골드 무대 수정판의 해상 발사와 고공 비행 컷을 사용합니다.
+
+```bash
+REMOTION_BROWSER_EXECUTABLE=/usr/bin/chromium npm run render:cinematic -- gala-spacing
+node --disable-warning=ExperimentalWarning scripts/verify-cinematic.mjs out/gala-spacing/festival-gala-spacing.mp4
+```
+
+## 이전 육각형 분야 안내·MS 발사 모션 수정판
 
 - [6분 12초 본편 MP4](deliverables/gala-motion/festival-gala-motion.mp4)
 - [주요 장면 모음](deliverables/gala-motion/scene-review.jpg) · [검수 결과](docs/reviews/gala-motion-qa.md)
