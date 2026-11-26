@@ -11,7 +11,6 @@ import { festivalAwards } from "../data/award-roster";
 import { formatMentorMenteeNames } from "../data/award-display";
 import type { AwardCue, DescriptionCue } from "../data/cinematic-timeline";
 
-type InstituteCode = AwardCue["code"];
 type Recipient = AwardCue["recipients"][number];
 
 const pearl = "#EDEFEA";
@@ -144,79 +143,6 @@ export const CategoryDescription = ({ cue }: { cue: DescriptionCue }) => {
           {category.description}
         </Interactive.Div>
       </div>
-    </AbsoluteFill>
-  );
-};
-
-export const CategoryOverview = ({ code }: { code: InstituteCode }) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const { name, categories } = festivalAwards[code];
-  const entered = settle(frame, 0, fps * 0.42);
-
-  return (
-    <AbsoluteFill style={{ background: centerShade, textAlign: "center" }}>
-      <Interactive.Div
-        name="시상 분야 안내 제목"
-        style={{
-          ...text,
-          position: "absolute",
-          top: "7cqh",
-          left: "9cqw",
-          right: "9cqw",
-          fontSize: "7.9cqh",
-          opacity: entered,
-          textShadow: "0 0.3cqh 1.5cqh #090602",
-        }}
-      >
-        {name} 시상 분야
-      </Interactive.Div>
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          inset: "auto",
-          top: "61cqh",
-          left: "50cqw",
-          translate: "-50% -50%",
-          width: "49cqh",
-          height: "49cqh",
-          borderRadius: "50%",
-          border: "0.2cqh solid #EFD3A27C",
-          boxShadow: "0 0 4cqh #EFBC5B2C, inset 0 0 2cqh #F1CC7B35",
-          background: "radial-gradient(circle, #B1834127 0%, transparent 72%)",
-          opacity: entered,
-        }}
-      />
-      {categories.map(({ name: title }, index) => {
-        const angle = (index / categories.length) * 2 * Math.PI - Math.PI / 2;
-        const opacity = settle(frame, fps * (0.13 + index * 0.043), fps * 0.38);
-        return (
-          <Interactive.Div
-            key={title}
-            name={title}
-            style={{
-              ...text,
-              color: "#FFF2D7",
-              position: "absolute",
-              left: `calc(50% + ${Math.cos(angle) * 58}cqh)`,
-              top: `${61 + Math.sin(angle) * 27}cqh`,
-              translate: "-50% -50%",
-              maxWidth: "19cqw",
-              padding: "0.65cqh 1.15cqw",
-              fontSize: "4.5cqh",
-              lineHeight: 1.18,
-              background: "#17110CDA",
-              border: "0.15cqh solid #F1D6A562",
-              borderRadius: "5cqh",
-              opacity,
-              textShadow: "0 0.19cqh 0.8cqh #080502",
-            }}
-          >
-            {title}
-          </Interactive.Div>
-        );
-      })}
     </AbsoluteFill>
   );
 };

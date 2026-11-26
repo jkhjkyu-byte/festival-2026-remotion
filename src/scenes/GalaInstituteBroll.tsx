@@ -9,6 +9,7 @@ import {
   useVideoConfig,
 } from "remotion";
 import { festivalAwards } from "../data/award-roster";
+import { GalaLaunchMotion } from "./GalaLaunchMotion";
 
 type Code = "CW" | "MS";
 
@@ -28,7 +29,7 @@ const profiles = {
     flare: "#FFE2BB",
     shots: [
       {
-        file: "radar.jpg",
+        file: "gala-cut/radar.jpg",
         focal: "73% 39%",
         from: 1.02,
         to: 1.046,
@@ -36,7 +37,7 @@ const profiles = {
         grade: "saturate(.87) contrast(1.035)",
       },
       {
-        file: "ciws.jpg",
+        file: "gala-cut/ciws.jpg",
         focal: "75% 54%",
         from: 1.061,
         to: 1.02,
@@ -51,15 +52,15 @@ const profiles = {
     flare: "#DAECFF",
     shots: [
       {
-        file: "launch.jpg",
+        file: "gala-motion/launch-sea.jpg",
         focal: "74% 55%",
-        from: 1.031,
-        to: 1.102,
-        pan: -1.6,
+        from: 1.008,
+        to: 1.024,
+        pan: -0.32,
         grade: "saturate(.91) contrast(1.055)",
       },
       {
-        file: "aerospace.jpg",
+        file: "gala-cut/aerospace.jpg",
         focal: "74% 51%",
         from: 1.06,
         to: 1.023,
@@ -95,7 +96,7 @@ const FilmPlate = ({
   readonly opacity: number;
 }) => (
   <Img
-    src={staticFile(`assets/gala-cut/${shot.file}`)}
+    src={staticFile(`assets/${shot.file}`)}
     alt=""
     style={{
       position: "absolute",
@@ -135,6 +136,7 @@ export const GalaInstituteBroll = ({ code }: { readonly code: Code }) => {
         progress={interpolate(frame, [0, cut + cross], [0, 1], limits)}
         opacity={1}
       />
+      {code === "MS" && mix < 1 ? <GalaLaunchMotion /> : null}
       <FilmPlate
         shot={second}
         progress={interpolate(
@@ -222,22 +224,6 @@ export const GalaInstituteBroll = ({ code }: { readonly code: Code }) => {
           >
             {festivalAwards[code].name}
           </Interactive.H1>
-          {code === "CW" && (
-            <Interactive.Div
-              name="함정 CIWS 표기"
-              style={{
-                position: "absolute",
-                marginTop: "2.6cqh",
-                fontSize: "4cqh",
-                fontWeight: 720,
-                letterSpacing: "0.14em",
-                color: profile.accent,
-                opacity: mix,
-              }}
-            >
-              CIWS
-            </Interactive.Div>
-          )}
         </div>
       </AbsoluteFill>
     </AbsoluteFill>

@@ -2,7 +2,19 @@
 
 Remotion과 TypeScript로 제작한 시상식 영상입니다. 최신 본편은 Studio의 `FestivalCinematic`에서 확인할 수 있습니다. 작업 해상도는 3960×1080, 배포본은 1980×540이며, 두 영상 모두 11:3, 30 fps입니다.
 
-## 최신 골드 무대·등급별 시상 수정판
+## 최신 육각형 분야 안내·MS 발사 모션 수정판
+
+- [6분 12초 본편 MP4](deliverables/gala-motion/festival-gala-motion.mp4)
+- [주요 장면 모음](deliverables/gala-motion/scene-review.jpg) · [검수 결과](docs/reviews/gala-motion-qa.md)
+
+두 본부의 분야 안내를 골드 육각형과 아이콘으로 재구성했습니다. 분야 설명의 전시관·아치 무대와 수상 화면의 트로피 무대를 번갈아 적용합니다. MS 소개는 03:12에 시작하며, 해상 컷의 빛줄기와 연기는 프레임에 맞춰 움직입니다.
+
+```bash
+REMOTION_BROWSER_EXECUTABLE=/usr/bin/chromium npm run render:cinematic -- gala-motion
+node --disable-warning=ExperimentalWarning scripts/verify-cinematic.mjs out/gala-motion/festival-gala-motion.mp4
+```
+
+## 이전 골드 무대·등급별 시상 수정판
 
 - [6분 12초 본편 MP4](deliverables/gala-cut/festival-gala-cut.mp4)
 - [주요 장면 모음](deliverables/gala-cut/scene-review.jpg) · [검수 결과](docs/reviews/gala-cut-qa.md)

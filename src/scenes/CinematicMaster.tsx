@@ -3,8 +3,6 @@ import {
   Audio,
   Freeze,
   interpolate,
-  Loop,
-  OffthreadVideo,
   Sequence,
   staticFile,
   useCurrentFrame,
@@ -19,13 +17,10 @@ import {
   type AwardCue,
 } from "../data/cinematic-timeline";
 import { CeremonySpace, type CeremonySpaceProps } from "../three/CeremonySpace";
-import {
-  CategoryDescription,
-  CategoryHonors,
-  CategoryOverview,
-} from "./CinematicAwards";
+import { CategoryDescription, CategoryHonors } from "./CinematicAwards";
 import { GalaInstituteBroll } from "./GalaInstituteBroll";
 import { GalaBackdrop } from "./GalaBackdrop";
+import { GalaCategoryOrbit } from "./GalaCategoryOrbit";
 import { festivalAwards } from "../data/award-roster";
 import { CeremonyPhotography } from "./CeremonyPhotography";
 import { HonorProcession } from "./HonorProcession";
@@ -55,29 +50,6 @@ const rounded = {
 } as const;
 const plateName = ({ mode, gold }: CeremonySpaceProps) =>
   gold ? `${mode}-gold` : mode;
-
-type PlateProps = CeremonySpaceProps & {
-  zoom?: number;
-  x?: number;
-  y?: number;
-};
-const StagePlate = ({ zoom = 1, x = 0, y = 0, ...profile }: PlateProps) => (
-  <AbsoluteFill
-    style={{
-      pointerEvents: "none",
-      transform: `scale(${zoom}) translate(${x}%, ${y}%)`,
-    }}
-    aria-hidden="true"
-  >
-    <Loop durationInFrames={plateFrames} layout="none">
-      <OffthreadVideo
-        muted
-        src={staticFile(`assets/cinematic-plates/${plateName(profile)}.mp4`)}
-        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-      />
-    </Loop>
-  </AbsoluteFill>
-);
 
 export const PlateReel = () => (
   <AbsoluteFill>
@@ -132,6 +104,20 @@ const PrizeReveal = () => (
   </>
 );
 
+const OpeningHold = () => {
+  const frame = useCurrentFrame();
+  return (
+    <AbsoluteFill
+      aria-hidden="true"
+      style={{
+        opacity: interpolate(frame, [116, 134], [0, 1], rounded),
+        background:
+          "radial-gradient(ellipse at 50% 44%, #111C2B 0%, #060B15 55%, #04070D 100%)",
+      }}
+    />
+  );
+};
+
 const OpeningStage = () => (
   <>
     <Sequence durationInFrames={46} premountFor={0} name="금속 디테일">
@@ -140,11 +126,7 @@ const OpeningStage = () => (
     <Sequence from={46} durationInFrames={88} premountFor={0} name="무대 전경">
       <CeremonyPhotography shot="hall" holdAt={43} />
     </Sequence>
-    <Sequence from={134} premountFor={0} name="축제 타이틀 홀드">
-      <Freeze frame={54}>
-        <StagePlate mode="opening" zoom={1.05} />
-      </Freeze>
-    </Sequence>
+    <OpeningHold />
   </>
 );
 
@@ -162,8 +144,7 @@ const InstituteCategories = ({ code }: Pick<AwardCue, "code">) => {
         durationInFrames={durationInFrames - intro}
         premountFor={0}
       >
-        <GalaBackdrop variant="category" />
-        <CategoryOverview code={code} />
+        <GalaCategoryOrbit code={code} />
       </Sequence>
       <Bed cue="technology" />
     </>
@@ -176,6 +157,11 @@ const Awards = ({ code }: Pick<AwardCue, "code">) => (
     {getInstituteProgramCues(code).map((cue) => {
       const { name } = festivalAwards[code].categories[cue.categoryIndex];
       const isMileage = name === "실시제안 마일리지";
+      const look =
+        (cue.categoryIndex +
+          (code === "MS" ? 1 : 0) +
+          (cue.kind === "regular" && cue.rank === "우수" ? 1 : 0)) %
+        2;
       return (
         <Sequence
           key={cue.start}
@@ -202,6 +188,7 @@ const Awards = ({ code }: Pick<AwardCue, "code">) => (
           ) : (
             <GalaBackdrop
               variant={cue.kind === "description" ? "category" : "awards"}
+              alternate={look === 1}
             />
           )}
           {cue.kind === "description" ? (
